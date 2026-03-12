@@ -1,0 +1,46 @@
+.switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.switch-wrapper input {
+  display: none;
+}
+
+.switch-slider {
+  width: 36px;
+  height: 18px;
+  background: #e5e7eb;
+  border-radius: 20px;
+  position: relative;
+  transition: 0.2s;
+}
+
+.switch-slider::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.switch-wrapper input:checked + .switch-slider {
+  background: #22c55e;
+}
+
+.switch-wrapper input:checked + .switch-slider::before {
+  transform: translateX(18px);
+}
+
+.switch-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
