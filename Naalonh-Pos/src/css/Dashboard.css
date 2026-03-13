@@ -92,13 +92,13 @@
 }
 
 /* Typography utilities */
-h1, h2, h3, h4, h5, h6 {
+/* h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-tight);
   color: var(--gray-900);
   letter-spacing: -0.01em;
-}
+} */
 
 /* KPI Cards - Modern stat cards */
 .kpi-grid {

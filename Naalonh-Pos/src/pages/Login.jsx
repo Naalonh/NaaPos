@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config";
 import supabase from "../lib/supabase";
 import { Eye, EyeOff } from "lucide-react";
-import "../css/Login.css";
+// import "../css/Login.css";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -113,39 +113,54 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="split-panel">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-white to-[#f1f5ff]">
+      <div className="flex max-w-[1000px] min-h-[640px] w-full bg-[var(--bg-main)]  border  border-[var(--border-light)] rounded-2xl overflow-hidden shadow-[var(--shadow-xl)] animate-[slideUp_0.5s_ease-out]">
         {/* Left Panel - Welcome with cover.png */}
-        <div className="welcome-panel">
-          <div className="welcome-content">
-            <h1 className="welcome-title">Welcome to</h1>
+        <div className="flex-1 px-[40px] py-[60px] flex flex-col justify-center text-center text-white relative bg-[var(--primary-500)] before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1)_0%,transparent_60%)] before:opacity-40">
+          <div className="relative z-10 max-w-[320px] mx-auto">
+            <h1 className="font-[var(--font-display)] text-[35px] font-bold mb-2 tracking-[-0.02em] leading-[1.2] text-white/90">
+              Welcome to
+            </h1>
 
             <img
               src="/c1.png"
               alt="Naalonh POS Cover"
-              className="cover-image"
+              className="w-full max-w-[280px] h-auto border-2 border-white/10 rounded-2xl my-6 m-auto shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-in-out hover:scale-[1.02]"
             />
 
-            <p className="welcome-quote">
+            <p className="text-sm text-white/80 leading-[1.6] font-normal">
               Run your shop smarter with real-time sales and inventory
             </p>
           </div>
         </div>
 
         {/* Right Panel - Login Form */}
-        <div className="login-card">
-          <div className="login-header">
-            <h2>Sign in</h2>
-            <p>Please sign in to your account</p>
+        <div className="flex-1 bg-[var(--bg-main)] py-[60px] px-[48px] flex flex-col justify-center">
+          <div className="mb-6">
+            <h2 className=" font-[var(--font-display)] text-2xl text-[var(--text-main)] mb-2 font-bold tracking-[-0.02em]">
+              Sign in
+            </h2>
+            <p className="text-base text-[var(--text-dim)] font-normal">
+              Please sign in to your account
+            </p>
           </div>
 
           {errors.general && (
-            <div className="error-message general-error">{errors.general}</div>
+            <div
+              className="bg-[var(--danger-50)] text-[var(--danger-700)] 
+                px-[18px] py-[12px] rounded-[12px] mb-3 border border-[var(--danger-500)] font-medium 
+                text-sm">
+              {errors.general}
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="login-form">
-            <div className="form-group">
-              <label htmlFor="email">Email Address</label>
+            <div className="mb-4">
+              <label
+                className="block mb-2 text-[var(--text-secondary)] font-medium text-sm tracking-[0.3px]"
+                htmlFor="email">
+                Email Address
+              </label>
               <input
                 type="email"
                 id="email"
@@ -153,17 +168,32 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
-                className={errors.email ? "error" : ""}
                 disabled={isLoading}
+                className={`w-full px-4 py-3 rounded-lg border outline-none transition placeholder:text-[var(--text-light)] placeholder:font-normal placeholder:text-sm focus:outline-none placeholder:border-[var(--primary-500)] focus:bg-[var(--bg-main)] focus:shadow-[0_0_0_4px_var(--primary-50)]
+                  ${
+                    errors.email
+                      ? "border-[var(--danger-500)]"
+                      : "border-[var(--border-color)] focus:border-[var(--primary-500)]"
+                  }`}
               />
+
               {errors.email && (
-                <span className="error-text">{errors.email}</span>
+                <span
+                  className="bg-[var(--danger-50)] text-[var(--danger-700)] 
+                px-[18px] py-[12px] rounded-[12px] mb-6 border border-[var(--danger-500)] font-medium 
+                text-sm">
+                  {errors.email}
+                </span>
               )}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <div className="password-input-wrapper">
+            <div className="mb-4">
+              <label
+                className="block mb-2 text-[var(--text-secondary)] font-medium text-sm tracking-[0.3px]"
+                htmlFor="password">
+                Password
+              </label>
+              <div className="relative flex items-center">
                 <input
                   type={showPassword ? "text" : "password"} // Toggle type
                   id="password"
@@ -171,19 +201,26 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className={errors.password ? "error" : ""}
+                  className={`w-full px-4 py-3 rounded-lg border outline-none transition placeholder:text-[var(--text-light)] placeholder:font-normal placeholder:text-sm focus:outline-none placeholder:border-[var(--primary-500)] focus:bg-[var(--bg-main)] focus:shadow-[0_0_0_4px_var(--primary-50)]
+                  ${
+                    errors.password
+                      ? "border-[var(--danger-500)]"
+                      : "border-[var(--border-color)] focus:border-[var(--primary-500)]"
+                  }`}
                   disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="password-toggle-btn"
+                  className="absolute right-3 bg-transparent  border-none text-[var(--text-light)] cursor-pointer flex items-center justify-center p-1 transition-colors duration-200 ease-in-out hover:text-[var(--primary-500)] focus:outline-none z-10"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex="-1">
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               {errors.password && (
-                <span className="error-text">{errors.password}</span>
+                <span className="bg-[var(--danger-50)] text-[var(--danger-700)] px-[18px] py-[12px] rounded-[12px] mb-6 border border-[var(--danger-500)] font-medium text-sm">
+                  {errors.password}
+                </span>
               )}
             </div>
 
@@ -209,12 +246,17 @@ const Login = () => {
                 </label>
               </div>
 
-              <a href="/forgot-password" className="forgot-password">
+              <a
+                href="/forgot-password"
+                className="text-[var(--primary-600)] text-sm font-medium no-underline transition-colors duration-200 ease hover:text-[var(--primary-500)] hover:underline">
                 Forgot Password?
               </a>
             </div>
 
-            <button type="submit" className="login-button" disabled={isLoading}>
+            <button
+              type="submit"
+              className="w-full p-4 bg-[var(--primary-600)] text-white  rounded-xl text-base font-semibold cursor-pointer transition-all duration-200 ease-in-out shadow-[var(--shadow-md)] tracking-[0.3px]"
+              disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>

@@ -1,89 +1,26 @@
 /* Login.css - Matching Sidebar Colors */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap");
 
-:root {
-  /* Font Families */
-  --font-primary:
-    "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-display:
-    "Outfit", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-
-  /* Font Sizes */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-
-  /* Font Weights */
-  --weight-normal: 400;
-  --weight-medium: 500;
-  --weight-semibold: 600;
-  --weight-bold: 700;
-
-  /* Colors - Matching Sidebar */
-  --bg-main: #ffffff;
-  --bg-subtle: #f8fafc; /* Slate 50 */
-  --bg-hover: #f1f5ff; /* Very light indigo */
-
-  /* Primary Colors - Sidebar accent */
-  --primary-50: #f1f5ff;
-  --primary-100: #e0e7ff;
-  --primary-500: #6366f1; /* Indigo 500 */
-  --primary-600: #4f46e5; /* Indigo 600 */
-  --primary-700: #4338ca; /* Indigo 700 */
-
-  /* Text Colors */
-  --text-main: #1e293b; /* Slate 800 */
-  --text-secondary: #475569; /* Slate 600 */
-  --text-dim: #64748b; /* Slate 500 */
-  --text-light: #94a3b8; /* Slate 400 */
-
-  /* Border Colors */
-  --border-color: #e2e8f0; /* Slate 200 */
-  --border-light: #f1f5f9; /* Slate 100 */
-
-  /* Status Colors */
-  --success-50: #f0fdf4;
-  --success-500: #22c55e;
-  --success-600: #16a34a;
-  --success-700: #15803d;
-  --danger-50: #fef2f2;
-  --danger-500: #ef4444;
-  --danger-600: #dc2626;
-  --danger-700: #b91c1c;
-
-  /* Shadows - Matching Sidebar */
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.05);
-}
-
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
-body {
+/* body {
   font-family: var(--font-primary);
   color: var(--text-main);
   background-color: var(--bg-subtle);
-}
+} */
 
-.login-container {
+/* .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Matching sidebar's subtle background */
   background: linear-gradient(135deg, #ffffff 0%, #f1f5ff 100%);
   padding: 24px;
-}
+} */
 
-.split-panel {
+/* .split-panel {
   display: flex;
   max-width: 1000px;
   width: 100%;
@@ -94,10 +31,10 @@ body {
   overflow: hidden;
   animation: slideUp 0.5s ease-out;
   border: 1px solid var(--border-light);
-}
+} */
 
 /* Left Welcome Panel - Matching sidebar active states */
-.welcome-panel {
+/* .welcome-panel {
   flex: 1;
   padding: 60px 40px;
   display: flex;
@@ -108,10 +45,10 @@ body {
   color: white;
   position: relative;
   background-color: var(--primary-500);
-}
+} */
 
 /* Subtle pattern overlay */
-.welcome-panel::before {
+/* .welcome-panel::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -121,14 +58,14 @@ body {
     transparent 60%
   );
   opacity: 0.4;
-}
+} */
 
-.welcome-content {
+/* .welcome-content {
   position: relative;
   z-index: 2;
   max-width: 320px;
-}
-
+} */
+/* 
 .welcome-title {
   font-family: var(--font-display);
   font-size: 35px;
@@ -137,9 +74,9 @@ body {
   letter-spacing: -0.02em;
   line-height: 1.2;
   color: rgba(255, 255, 255, 0.9);
-}
+} */
 
-.cover-image {
+/* .cover-image {
   width: 100%;
   max-width: 280px;
   height: auto;
@@ -152,26 +89,26 @@ body {
 
 .cover-image:hover {
   transform: scale(1.02);
-}
+} */
 
-.welcome-quote {
+/* .welcome-quote {
   font-size: var(--text-sm);
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
   font-weight: var(--weight-normal);
-}
+} */
 
 /* Right Panel - Login Card */
-.login-card {
+/* .login-card {
   flex: 1;
   background: var(--bg-main);
   padding: 60px 48px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
+} */
 
-.login-header {
+/* .login-header {
   margin-bottom: 32px;
 }
 
@@ -188,10 +125,10 @@ body {
   color: var(--text-dim);
   font-size: var(--text-base);
   font-weight: var(--weight-normal);
-}
+} */
 
 /* Form Styling */
-.form-group {
+/* .form-group {
   margin-bottom: 24px;
 }
 
@@ -214,9 +151,9 @@ body {
   transition: all 0.2s ease;
   background-color: var(--bg-main);
   color: var(--text-main);
-}
+} */
 
-.form-group input::placeholder {
+/* .form-group input::placeholder {
   color: var(--text-light);
   font-weight: var(--weight-normal);
   font-size: var(--text-sm);
@@ -227,10 +164,10 @@ body {
   border-color: var(--primary-500);
   background-color: var(--bg-main);
   box-shadow: 0 0 0 4px var(--primary-50);
-}
+} */
 
 /* Error States */
-.error-message {
+/* .error-message {
   background-color: var(--danger-50);
   color: var(--danger-700);
   padding: 14px 18px;
@@ -239,21 +176,8 @@ body {
   font-size: var(--text-sm);
   border: 1px solid var(--danger-500);
   font-weight: var(--weight-medium);
-}
+} */
 
-.form-group input.error {
-  border-color: var(--danger-500);
-  background-color: var(--danger-50);
-}
-
-.error-text {
-  color: var(--danger-600);
-  font-size: var(--text-xs);
-  margin-top: 6px;
-  display: block;
-  font-weight: var(--weight-medium);
-  padding-left: 4px;
-}
 
 /* Options & Buttons */
 .form-options {
@@ -346,7 +270,6 @@ body {
 }
 
 /* Uiverse Checkbox */
-
 .checkbox-wrapper-46 input[type="checkbox"] {
   display: none;
   visibility: hidden;
@@ -481,6 +404,7 @@ body {
 .password-toggle-btn:focus {
   outline: none;
 }
+
 /* Responsive */
 @media (max-width: 850px) {
   .split-panel {
