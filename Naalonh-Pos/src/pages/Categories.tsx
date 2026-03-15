@@ -404,7 +404,7 @@ const Categories: React.FC = () => {
                 setSelectedCategory(null);
                 setIsModalOpen(true);
               }}>
-              <HiOutlinePlus className="w-[18px] h-[18px]" />
+              <HiOutlinePlus className="w-4.5 h-4.5" />
               Add Category
             </button>
           </div>
@@ -412,8 +412,8 @@ const Categories: React.FC = () => {
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="bg-white rounded-2xl p-6 flex items-center gap-4 border border-gray-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-200 hover:shadow-lg">
-              <div className="w-[52px] h-[52px] rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                <HiOutlineTag className="w-[26px] h-[26px]" />
+              <div className="w-13 h-13 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <HiOutlineTag className="w-6.5 h-6.5" />
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500 font-medium mb-1">
@@ -426,8 +426,8 @@ const Categories: React.FC = () => {
             </div>
 
             <div className="bg-white rounded-2xl p-6 flex items-center gap-4 border border-gray-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-200 hover:shadow-lg">
-              <div className="w-[52px] h-[52px] rounded-2xl bg-green-50 text-green-600 flex items-center justify-center">
-                <HiOutlineCheckCircle className="w-[26px] h-[26px]" />
+              <div className="w-13 h-13 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center">
+                <HiOutlineCheckCircle className="w-6.5 h-6.5" />
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500 font-medium mb-1">
@@ -441,7 +441,7 @@ const Categories: React.FC = () => {
           </div>
 
           {/* Search Input */}
-          <div className="relative w-full md:w-[400px]">
+          <div className="relative w-full md:w-100">
             <SearchInput
               value={searchQuery}
               onChange={(val: string) => {
@@ -475,17 +475,17 @@ const Categories: React.FC = () => {
           {/* Categories Table */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-auto">
             {loading && categories.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-[60px] px-5 text-center">
+              <div className="flex flex-col items-center justify-center py-15 px-5 text-center">
                 <div className="w-10 h-10 border-3 border-gray-200 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
                 <p className="text-sm text-gray-500">Loading categories...</p>
               </div>
             ) : filteredCategories.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-[60px] px-5 text-center">
+              <div className="flex flex-col items-center justify-center py-15 px-5 text-center">
                 <HiOutlineFolder className="w-16 h-16 text-gray-300 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 font-display mb-2">
                   No categories found
                 </h3>
-                <p className="text-sm text-gray-500 mb-6 max-w-[300px]">
+                <p className="text-sm text-gray-500 mb-6 max-w-75">
                   {searchQuery
                     ? "No categories match your search criteria"
                     : "Get started by creating your first category"}
@@ -494,37 +494,37 @@ const Categories: React.FC = () => {
                   <button
                     className="bg-indigo-500 text-white border-none px-6 py-3 rounded-[14px] text-sm font-medium font-display cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-[0_4px_10px_rgba(99,102,241,0.2)] hover:bg-indigo-600 hover:-translate-y-0.5 hover:shadow-[0_6px_15px_rgba(99,102,241,0.3)]"
                     onClick={() => setIsModalOpen(true)}>
-                    <HiOutlinePlus className="w-[18px] h-[18px]" />
+                    <HiOutlinePlus className="w-4.5 h-4.5" />
                     Create Category
                   </button>
                 )}
               </div>
             ) : (
-              <table className="w-full border-collapse text-sm min-w-[800px]">
+              <table className="w-full border-collapse text-sm min-w-200">
                 <thead>
                   <tr>
-                    <th className="text-left px-5 py-[18px] text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
+                    <th className="text-left px-5 py-4.5 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
                       #
                     </th>
-                    <th className="text-left px-5 py-[18px] text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
+                    <th className="text-left px-5 py-4.5 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
                       Category Name
                     </th>
-                    <th className="text-left px-5 py-[18px] text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
+                    <th className="text-left px-5 py-4.5 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <HiOutlineSortAscending className="w-3.5 h-3.5 text-gray-400" />
                         Sort Order
                       </div>
                     </th>
-                    <th className="text-left px-5 py-[18px] text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
+                    <th className="text-left px-5 py-4.5 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
                       Status
                     </th>
-                    <th className="text-left px-5 py-[18px] text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
+                    <th className="text-left px-5 py-4.5 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <HiOutlineCalendar className="w-3.5 h-3.5 text-gray-400" />
                         Created
                       </div>
                     </th>
-                    <th className="text-left px-5 py-[18px] text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
+                    <th className="text-left px-5 py-4.5 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 border-b border-gray-100 font-display whitespace-nowrap">
                       Actions
                     </th>
                   </tr>
@@ -542,7 +542,7 @@ const Categories: React.FC = () => {
                       </td>
                       <td className="px-5 py-4 text-gray-700 border-b border-gray-100">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm font-display shadow-[0_4px_8px_rgba(99,102,241,0.2)]">
+                          <div className="w-9 h-9 bg-linear-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm font-display shadow-[0_4px_8px_rgba(99,102,241,0.2)]">
                             {category.name.charAt(0).toUpperCase()}
                           </div>
                           <span className="font-medium text-gray-900">
@@ -573,7 +573,7 @@ const Categories: React.FC = () => {
                           </button>
 
                           {openMenu === category.id && (
-                            <div className="absolute right-0 top-11 bg-white min-w-[160px] border border-gray-200 rounded-2xl p-1.5 shadow-xl z-50 animate-[slideDown_0.2s_ease]">
+                            <div className="absolute right-0 top-11 bg-white min-w-40 border border-gray-200 rounded-2xl p-1.5 shadow-xl z-50 animate-[slideDown_0.2s_ease]">
                               <button
                                 onClick={() => {
                                   setSelectedCategory(category);

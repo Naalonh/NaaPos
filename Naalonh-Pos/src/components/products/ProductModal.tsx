@@ -1,18 +1,44 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./ProductModal.css";
-import CropModal from "../CropModal"; // 1. Uncomment this import
+import { OptionGroup, ProductForm } from "../../types/product";
+import CropModal from "../CropModal";
 import OptionModal from "./OptionModal";
 import { BiSolidImage, BiPlus, BiTrash, BiEditAlt } from "react-icons/bi";
 
-const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
-  const [isSaving, setIsSaving] = useState(false);
-  const fileInputRef = useRef(null);
-  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
-  const [editingOptionGroup, setEditingOptionGroup] = useState(null);
+type SelectedImage = {
+  preview: string;
+  file: File;
+};
 
-  const defaultForm = {
+type Category = {
+  id: string;
+  name: string;
+};
+
+type ProductModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: ProductForm) => Promise<void>;
+  initialData?: Partial<ProductForm>;
+  categories: Category[];
+};
+
+const ProductModal: React.FC<ProductModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  initialData,
+  categories,
+}) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
+    null,
+  );
+  const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
+  const [editingOptionGroup, setEditingOptionGroup] =
+    useState<OptionGroup | null>(null);
+  const defaultForm: ProductForm = {
     name: "",
     category: "",
     currency: "USD",
@@ -24,7 +50,7 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
     optionGroups: [],
   };
 
-  const [formData, setFormData] = useState(defaultForm);
+  const [formData, setFormData] = useState<ProductForm>(defaultForm);
 
   useEffect(() => {
     if (initialData) {
@@ -33,7 +59,7 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
         ...initialData,
         optionGroups: (initialData.optionGroups || []).map((g) => ({
           ...g,
-          id: g.id, // preserve database id
+          id: g.id,
         })),
       });
     } else {
@@ -46,15 +72,15 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
 
     if (file) {
       const reader = new FileReader();
 
       reader.onload = () => {
         setSelectedImage({
-          preview: reader.result,
+          preview: reader.result as string,
           file: file,
         });
 
@@ -67,7 +93,7 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
     }
   };
 
-  const handleCropSave = async (croppedImageUrl) => {
+  const handleCropSave = async (croppedImageUrl: string) => {
     const response = await fetch(croppedImageUrl);
     const blob = await response.blob();
 
@@ -82,27 +108,27 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
     setIsCropModalOpen(false);
   };
 
-  const handleAddOptionGroup = (newGroup) => {
+  const handleAddOptionGroup = (newGroup: OptionGroup) => {
     setFormData((prev) => ({
       ...prev,
       optionGroups: [
-        ...(prev.optionGroups || []),
+        ...prev.optionGroups,
         {
           ...newGroup,
-          id: newGroup.id || `temp-${Date.now()}`, // keep DB id if exists
+          id: newGroup.id || `temp-${Date.now()}`,
         },
       ],
     }));
   };
 
-  const removeOptionGroup = (id) => {
+  const removeOptionGroup = (id: string) => {
     setFormData((prev) => ({
       ...prev,
       optionGroups: prev.optionGroups.filter((g) => g.id !== id),
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -121,12 +147,14 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
 
   return (
     <>
-      <div className="modal-overlay">
-        <div className="modal-container">
-          <div className="modal-header">
-            <h2>{initialData ? "Edit Product" : "Add New Product"}</h2>
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[3000] animate-fadeIn">
+        <div className="bg-white w-full max-w-[500px] max-h-[90vh] rounded-2xl flex flex-col overflow-hidden">
+          <div className="flex justify-between items-center px-5 py-4 border-b border-slate-200 bg-white sticky top-0 z-10 mb-1">
+            <h2 className="font-outfit text-2xl text-slate-800 m-0">
+              {initialData ? "Edit Product" : "Add New Product"}
+            </h2>
             <button
-              className="close-btn"
+              className="bg-none border-none text-2xl text-slate-500 cursor-pointer"
               onClick={() => {
                 setFormData(defaultForm);
                 onClose();
@@ -135,10 +163,11 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="product-form">
-            <div className="image-upload-section">
-              <div className="image-preview-container">
-                {/* 2. Logic check: If image is a dataURL (longer than an emoji) */}
+          <form
+            onSubmit={handleSubmit}
+            className="overflow-y-auto flex-1 px-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex flex-col items-center gap-3 mb-6 p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+              <div className="w-[100px] h-[100px] rounded-[20px] bg-white flex items-center justify-center overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-200">
                 {formData.image ? (
                   <img
                     src={
@@ -147,18 +176,18 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                         : formData.image
                     }
                     alt="Preview"
-                    className="img-preview"
+                    className="w-full h-full object-cover block"
                   />
                 ) : (
-                  <div className="icon-placeholder">
+                  <div className="flex items-center justify-center w-full h-full text-gray-400 bg-gray-100 rounded-lg">
                     <BiSolidImage size={48} />
                   </div>
                 )}
               </div>
               <button
                 type="button"
-                className="upload-trigger-btn"
-                onClick={() => fileInputRef.current.click()}>
+                className="px-4 py-2 bg-indigo-500 text-white border-none rounded-lg text-sm font-semibold cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => fileInputRef.current?.click()}>
                 Upload Image
               </button>
               <input
@@ -170,8 +199,10 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
               />
             </div>
 
-            <div className="pm-form-group">
-              <label>Product Name</label>
+            <div className="mb-5 flex flex-col gap-2">
+              <label className="text-sm font-semibold text-slate-600">
+                Product Name
+              </label>
               <input
                 type="text"
                 required
@@ -180,25 +211,28 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 placeholder="e.g. Grilled Salmon"
+                className="p-[11px] border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
               />
             </div>
 
-            <div className="pm-form-group">
-              <label>Category</label>
-              <div className="custom-select">
-                <div className="selected">
+            <div className="mb-5 flex flex-col gap-2">
+              <label className="text-sm font-semibold text-slate-600">
+                Category
+              </label>
+              <div className="relative w-full cursor-pointer font-inter">
+                <div className="p-[9px] border border-slate-200 rounded-md bg-white flex justify-between items-center transition-all hover:border-indigo-400">
                   {categories?.find((c) => c.id === formData.category)?.name ||
                     "Select Category"}
-                  <span className="arrow">▾</span>
+                  <span className="text-xs text-slate-500">▾</span>
                 </div>
 
-                <div className="options">
+                <div className="absolute w-full bg-white border border-slate-200 rounded-md mt-px shadow-[0_10px_20px_rgba(0,0,0,0.05)] opacity-0 pointer-events-none -translate-y-1 transition-all hover:opacity-100 hover:pointer-events-auto hover:translate-y-0 z-[100]">
                   {categories
                     ?.filter((c) => c.id !== "all")
                     .map((category) => (
                       <div
                         key={category.id}
-                        className="option"
+                        className="p-2.5 rounded-[10px] transition-colors hover:bg-slate-100"
                         onClick={() =>
                           setFormData({ ...formData, category: category.id })
                         }>
@@ -209,18 +243,20 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="pm-form-group">
-                <label>Currency</label>
-                <div className="custom-select">
-                  <div className="selected">
-                    {formData.currency === "usd" ? "USD ($)" : "KHR (៛)"}
-                    <span className="arrow">▾</span>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-5 flex flex-col gap-2">
+                <label className="text-sm font-semibold text-slate-600">
+                  Currency
+                </label>
+                <div className="relative w-full cursor-pointer font-inter">
+                  <div className="p-[9px] border border-slate-200 rounded-md bg-white flex justify-between items-center transition-all hover:border-indigo-400">
+                    {formData.currency === "USD" ? "USD ($)" : "KHR (៛)"}
+                    <span className="text-xs text-slate-500">▾</span>
                   </div>
 
-                  <div className="options">
+                  <div className="absolute w-full bg-white border border-slate-200 rounded-md mt-px shadow-[0_10px_20px_rgba(0,0,0,0.05)] opacity-0 pointer-events-none -translate-y-1 transition-all hover:opacity-100 hover:pointer-events-auto hover:translate-y-0 z-[100]">
                     <div
-                      className="option"
+                      className="p-2.5 rounded-[10px] transition-colors hover:bg-slate-100"
                       onClick={() =>
                         setFormData({ ...formData, currency: "USD" })
                       }>
@@ -228,7 +264,7 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                     </div>
 
                     <div
-                      className="option"
+                      className="p-2.5 rounded-[10px] transition-colors hover:bg-slate-100"
                       onClick={() =>
                         setFormData({ ...formData, currency: "KHR" })
                       }>
@@ -237,8 +273,8 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                   </div>
                 </div>
               </div>
-              <div className="pm-form-group">
-                <label>
+              <div className="mb-5 flex flex-col gap-2">
+                <label className="text-sm font-semibold text-slate-600">
                   Price {formData.currency === "USD" ? "($)" : "(៛)"}
                 </label>
                 <input
@@ -253,25 +289,32 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                         e.target.value === "" ? "" : parseFloat(e.target.value),
                     })
                   }
+                  className="p-[11px] border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
                 />
               </div>
             </div>
 
-            <div className="pm-form-group">
-              <label>Description</label>
+            <div className="mb-5 flex flex-col gap-2">
+              <label className="text-sm font-semibold text-slate-600">
+                Description
+              </label>
               <textarea
-                rows="2"
+                rows={2}
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
-                }></textarea>
+                }
+                className="p-[11px] border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
+              />
             </div>
 
-            <div className="pm-form-group">
-              <label>Status</label>
+            <div className="mb-5 flex flex-col gap-2">
+              <label className="text-sm font-semibold text-slate-600">
+                Status
+              </label>
 
-              <div className="status-tabs">
-                <div className="tabs">
+              <div className="w-full">
+                <div className="flex relative items-center w-full bg-white shadow-[0_0_1px_rgba(24,94,224,0.15),0_6px_12px_rgba(24,94,224,0.15)] p-1 rounded-xl">
                   <input
                     type="radio"
                     id="status-active"
@@ -280,8 +323,11 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                     onChange={() =>
                       setFormData({ ...formData, status: "active" })
                     }
+                    className="hidden"
                   />
-                  <label htmlFor="status-active" className="tab">
+                  <label
+                    htmlFor="status-active"
+                    className="flex-1 flex items-center justify-center text-center h-9 leading-[46px] text-sm text-slate-700 font-bold rounded-[10px] cursor-pointer transition-colors relative z-[2] peer-checked:text-blue-600">
                     Active
                   </label>
 
@@ -293,54 +339,40 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                     onChange={() =>
                       setFormData({ ...formData, status: "disabled" })
                     }
+                    className="hidden"
                   />
-                  <label htmlFor="status-disabled" className="tab">
+                  <label
+                    htmlFor="status-disabled"
+                    className="flex-1 flex items-center justify-center text-center h-9 leading-[46px] text-sm text-slate-700 font-bold rounded-[10px] cursor-pointer transition-colors relative z-[2] peer-checked:text-blue-600">
                     Disabled
                   </label>
 
-                  <span className="glider"></span>
+                  <span
+                    className={`absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-blue-50 rounded-[10px] transition-transform duration-250 z-[1] ${
+                      formData.status === "disabled"
+                        ? "translate-x-full"
+                        : "translate-x-0"
+                    }`}
+                  />
                 </div>
               </div>
             </div>
 
-            <div className="pm-form-group">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "8px",
-                }}>
-                <label style={{ margin: 0 }}>Option Groups</label>
+            <div className="mb-5 flex flex-col gap-2">
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-semibold text-slate-600 m-0">
+                  Option Groups
+                </label>
                 <button
                   type="button"
-                  className="add-option-btn"
-                  onClick={() => setIsOptionModalOpen(true)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    padding: "4px 8px",
-                    background: "#f1f5f9",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "8px",
-                    fontSize: "0.75rem",
-                    fontWeight: "700",
-                    color: "#6366f1",
-                    cursor: "pointer",
-                  }}>
+                  className="add-option-btn flex items-center gap-1 px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-indigo-500 cursor-pointer"
+                  onClick={() => setIsOptionModalOpen(true)}>
                   <BiPlus size={16} /> Add Option Group
                 </button>
               </div>
 
               {/* List of Added Groups */}
-              <div
-                className="option-groups-list"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "8px",
-                }}>
+              <div className="flex flex-col gap-2">
                 {formData.optionGroups?.map((group) => (
                   <div
                     key={group.id}
@@ -348,51 +380,29 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                       setEditingOptionGroup(group);
                       setIsOptionModalOpen(true);
                     }}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "10px 14px",
-                      background: "#f8fafc",
-                      borderRadius: "10px",
-                      border: "1px solid #e2e8f0",
-                      cursor: "pointer",
-                    }}>
+                    className="flex justify-between items-center p-3.5 bg-slate-50 rounded-[10px] border border-slate-200 cursor-pointer hover:bg-slate-100 hover:border-indigo-400 transition-colors">
                     <div>
-                      <span
-                        style={{
-                          fontWeight: "600",
-                          color: "#1e293b",
-                          fontSize: "0.9rem",
-                        }}>
+                      <span className="font-semibold text-slate-800 text-sm">
                         {group.groupName}
                       </span>
 
-                      <span
-                        style={{
-                          marginLeft: "8px",
-                          fontSize: "0.75rem",
-                          color: "#64748b",
-                        }}>
+                      <span className="ml-2 text-xs text-slate-500">
                         ({group.options.length} options)
                       </span>
                     </div>
 
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div className="flex gap-2">
                       <BiEditAlt size={18} color="#6366f1" />
 
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          removeOptionGroup(group.id);
+                          if (group.id != null) {
+                            removeOptionGroup(String(group.id));
+                          }
                         }}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "#ef4444",
-                          cursor: "pointer",
-                        }}>
+                        className="bg-none border-none text-red-500 cursor-pointer">
                         <BiTrash size={18} />
                       </button>
                     </div>
@@ -418,8 +428,10 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
                         g.id === editingOptionGroup.id
                           ? {
                               ...g,
-                              ...groupData,
-                              id: g.id,
+                              groupName: groupData.groupName,
+                              required: groupData.required,
+                              status: groupData.status,
+                              options: groupData.options,
                             }
                           : g,
                       ),
@@ -434,11 +446,17 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
               />
             )}
 
-            <div className="pmodal-modal-footer">
-              <button type="button" className="cancel-btn" onClick={onClose}>
+            <div className="flex justify-end gap-3 px-5 py-4 border-t border-slate-200 bg-white sticky bottom-0 z-3">
+              <button
+                type="button"
+                className="px-6 py-3 bg-white border border-slate-200 rounded-xl font-semibold cursor-pointer"
+                onClick={onClose}>
                 Cancel
               </button>
-              <button type="submit" className="save-btn" disabled={isSaving}>
+              <button
+                type="submit"
+                className="px-6 py-3 bg-indigo-500 text-white border-none rounded-xl font-semibold cursor-pointer shadow-[0_4px_6px_-1px_rgba(99,102,241,0.2)] disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={isSaving}>
                 {isSaving
                   ? initialData
                     ? "Updating..."
@@ -452,7 +470,7 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, categories }) => {
         </div>
       </div>
 
-      {/* 3. Render CropModal when triggered */}
+      {/* Render CropModal when triggered */}
       {isCropModalOpen && selectedImage?.preview && (
         <CropModal
           image={selectedImage.preview}

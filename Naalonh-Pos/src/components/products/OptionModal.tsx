@@ -4,23 +4,7 @@ import CropModal from "../CropModal"; // Import your CropModal
 import "./OptionModal.css";
 import Switch from "../common/Switch";
 import AnimatedCheckbox from "../common/AnimatedCheckbox";
-
-type Option = {
-  id?: number | string | null;
-  name: string;
-  price: number | "";
-  image: string;
-  description: string;
-  status: boolean;
-};
-
-type OptionGroup = {
-  id?: number | null;
-  groupName: string;
-  required: boolean;
-  status: "ACTIVE" | "DISABLED";
-  options: Option[];
-};
+import { Option, OptionGroup } from "../../types/product";
 
 type OptionModalProps = {
   isOpen: boolean;
@@ -28,7 +12,6 @@ type OptionModalProps = {
   onSave: (group: OptionGroup) => void;
   editingGroup?: OptionGroup | null;
 };
-
 const OptionModal: React.FC<OptionModalProps> = ({
   isOpen,
   onClose,
@@ -42,7 +25,14 @@ const OptionModal: React.FC<OptionModalProps> = ({
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const [options, setOptions] = useState<Option[]>([
-    { name: "", price: 0, image: "", description: "", status: true },
+    {
+      id: null,
+      name: "",
+      price: 0,
+      image: "",
+      description: "",
+      status: true,
+    },
   ]);
 
   const [status, setStatus] = useState<boolean>(true);

@@ -186,8 +186,8 @@ const Login = () => {
               />
               {errors.email && (
                 <span
-                  className="bg-[var(--danger-50)] text-[var(--danger-700)] 
-                px-[18px] py-[12px] rounded-[12px] mb-6 border border-[var(--danger-500)] font-medium 
+                  className="bg-(--danger-50) text-(--danger-700) 
+                px-4.5 py-3 rounded-xl mb-6 border border-(--danger-500) font-medium 
                 text-sm">
                   {errors.email}
                 </span>
@@ -209,14 +209,14 @@ const Login = () => {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 bg-transparent  border-none text-[var(--text-light)] cursor-pointer flex items-center justify-center p-1 transition-colors duration-200 ease-in-out hover:text-[var(--primary-500)] focus:outline-none z-10"
+                  className="absolute right-3 bg-transparent  border-none text-(--text-light) cursor-pointer flex items-center justify-center p-1 transition-colors duration-200 ease-in-out hover:text-(--primary-500) focus:outline-none z-10"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}>
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               {errors.password && (
-                <span className="bg-[var(--danger-50)] text-[var(--danger-700)] px-[18px] py-[12px] rounded-[12px] mb-6 border border-[var(--danger-500)] font-medium text-sm">
+                <span className="bg-(--danger-50) text-(--danger-700) px-4.5 py-3 rounded-xl mb-6 border border-(--danger-500) font-medium text-sm">
                   {errors.password}
                 </span>
               )}
@@ -236,7 +236,7 @@ const Login = () => {
               />
               <a
                 href="/forgot-password"
-                className="text-[var(--primary-600)] text-sm font-medium no-underline transition-colors duration-200 ease hover:text-[var(--primary-500)] hover:underline">
+                className="text-(--primary-600) text-sm font-medium no-underline transition-colors duration-200 ease hover:text-(--primary-500) hover:underline">
                 Forgot Password?
               </a>
             </div>
@@ -248,12 +248,12 @@ const Login = () => {
             />
           </form>
 
-          <div className="mt-4 text-center text-sm text-[var(--text-dim)] pt-4 border-t border-[var(--border-color)]">
+          <div className="mt-4 text-center text-sm text-(--text-dim) pt-4 border-t border-(--border-color)">
             <p>
               Don't have an account?{" "}
               <a
                 href="/Register"
-                className="text-[var(--primary-600)] text-sm font-medium no-underline transition-colors duration-200 ease hover:text-[var(--primary-500)] hover:underline">
+                className="text-(--primary-600) text-sm font-medium no-underline transition-colors duration-200 ease hover:text-(--primary-500) hover:underline">
                 Create Account
               </a>
             </p>

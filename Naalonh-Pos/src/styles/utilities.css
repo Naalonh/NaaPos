@@ -1,19 +1,26 @@
 /* Used for small helper styles that Tailwind doesn't provide. */
 @layer utilities {
-  /* 
-  .scrollbar-hide {
-    scrollbar-width: none;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease;
   }
 
-  .text-shadow {
-    text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  /* Font family utilities if not defined in Tailwind config */
+  .font-outfit {
+    font-family: "Outfit", sans-serif;
   }
-*/
 
+  .font-inter {
+    font-family: "Inter", sans-serif;
+  }
   .font-display {
     font-family: var(--font-display);
   }
