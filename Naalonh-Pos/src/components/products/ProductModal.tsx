@@ -147,8 +147,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[3000] animate-fadeIn">
-        <div className="bg-white w-full max-w-[500px] max-h-[90vh] rounded-2xl flex flex-col overflow-hidden">
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-3000 animate-fadeIn">
+        <div className="bg-white w-full max-w-125 max-h-[90vh] rounded-2xl flex flex-col overflow-hidden">
           <div className="flex justify-between items-center px-5 py-4 border-b border-slate-200 bg-white sticky top-0 z-10 mb-1">
             <h2 className="font-outfit text-2xl text-slate-800 m-0">
               {initialData ? "Edit Product" : "Add New Product"}
@@ -167,7 +167,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
             onSubmit={handleSubmit}
             className="overflow-y-auto flex-1 px-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex flex-col items-center gap-3 mb-6 p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-              <div className="w-[100px] h-[100px] rounded-[20px] bg-white flex items-center justify-center overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-200">
+              <div className="w-25 h-25 rounded-[20px] bg-white flex items-center justify-center overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-200">
                 {formData.image ? (
                   <img
                     src={
@@ -211,7 +211,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   setFormData({ ...formData, name: e.target.value })
                 }
                 placeholder="e.g. Grilled Salmon"
-                className="p-[11px] border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
+                className="p-2.75 border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
               />
             </div>
 
@@ -219,20 +219,25 @@ const ProductModal: React.FC<ProductModalProps> = ({
               <label className="text-sm font-semibold text-slate-600">
                 Category
               </label>
-              <div className="relative w-full cursor-pointer font-inter">
-                <div className="p-[9px] border border-slate-200 rounded-md bg-white flex justify-between items-center transition-all hover:border-indigo-400">
+              <div className="relative w-full cursor-pointer font-inter group">
+                <div className="p-2.25 border border-slate-200 rounded-md bg-white flex justify-between items-center hover:border-indigo-400">
                   {categories?.find((c) => c.id === formData.category)?.name ||
                     "Select Category"}
                   <span className="text-xs text-slate-500">▾</span>
                 </div>
 
-                <div className="absolute w-full bg-white border border-slate-200 rounded-md mt-px shadow-[0_10px_20px_rgba(0,0,0,0.05)] opacity-0 pointer-events-none -translate-y-1 transition-all hover:opacity-100 hover:pointer-events-auto hover:translate-y-0 z-[100]">
+                <div
+                  className="absolute w-full bg-white border border-slate-200 rounded-md mt-px shadow-lg opacity-0 pointer-events-none -translate-y-1 transition-all
+      group-hover:opacity-100
+      group-hover:pointer-events-auto
+      group-hover:translate-y-0
+      z-100">
                   {categories
                     ?.filter((c) => c.id !== "all")
                     .map((category) => (
                       <div
                         key={category.id}
-                        className="p-2.5 rounded-[10px] transition-colors hover:bg-slate-100"
+                        className="p-2.5 hover:bg-slate-100 cursor-pointer"
                         onClick={() =>
                           setFormData({ ...formData, category: category.id })
                         }>
@@ -248,13 +253,17 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 <label className="text-sm font-semibold text-slate-600">
                   Currency
                 </label>
-                <div className="relative w-full cursor-pointer font-inter">
-                  <div className="p-[9px] border border-slate-200 rounded-md bg-white flex justify-between items-center transition-all hover:border-indigo-400">
+                <div className="relative w-full cursor-pointer font-inter group">
+                  <div className="p-2.25 border border-slate-200 rounded-md bg-white flex justify-between items-center transition-all hover:border-indigo-400">
                     {formData.currency === "USD" ? "USD ($)" : "KHR (៛)"}
                     <span className="text-xs text-slate-500">▾</span>
                   </div>
 
-                  <div className="absolute w-full bg-white border border-slate-200 rounded-md mt-px shadow-[0_10px_20px_rgba(0,0,0,0.05)] opacity-0 pointer-events-none -translate-y-1 transition-all hover:opacity-100 hover:pointer-events-auto hover:translate-y-0 z-[100]">
+                  <div
+                    className="absolute w-full bg-white border border-slate-200 rounded-md mt-px shadow-[0_10px_20px_rgba(0,0,0,0.05)] opacity-0 pointer-events-none -translate-y-1 transition-all
+group-hover:opacity-100
+group-hover:pointer-events-auto
+group-hover:translate-y-0 z-100">
                     <div
                       className="p-2.5 rounded-[10px] transition-colors hover:bg-slate-100"
                       onClick={() =>
@@ -289,7 +298,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         e.target.value === "" ? "" : parseFloat(e.target.value),
                     })
                   }
-                  className="p-[11px] border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
+                  className="p-2.75 border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
                 />
               </div>
             </div>
@@ -304,7 +313,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="p-[11px] border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
+                className="p-2.75 border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
               />
             </div>
 
@@ -327,7 +336,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   />
                   <label
                     htmlFor="status-active"
-                    className="flex-1 flex items-center justify-center text-center h-9 leading-[46px] text-sm text-slate-700 font-bold rounded-[10px] cursor-pointer transition-colors relative z-[2] peer-checked:text-blue-600">
+                    className="flex-1 flex items-center justify-center text-center h-9 leading-11.5 text-sm text-slate-700 font-bold rounded-[10px] cursor-pointer transition-colors relative z-2 peer-checked:text-blue-600">
                     Active
                   </label>
 
@@ -343,12 +352,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   />
                   <label
                     htmlFor="status-disabled"
-                    className="flex-1 flex items-center justify-center text-center h-9 leading-[46px] text-sm text-slate-700 font-bold rounded-[10px] cursor-pointer transition-colors relative z-[2] peer-checked:text-blue-600">
+                    className="flex-1 flex items-center justify-center text-center h-9 leading-11.5 text-sm text-slate-700 font-bold rounded-[10px] cursor-pointer transition-colors relative z-2 peer-checked:text-blue-600">
                     Disabled
                   </label>
 
                   <span
-                    className={`absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-blue-50 rounded-[10px] transition-transform duration-250 z-[1] ${
+                    className={`absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-blue-50 rounded-[10px] transition-transform duration-250 z-1 ${
                       formData.status === "disabled"
                         ? "translate-x-full"
                         : "translate-x-0"

@@ -21,7 +21,7 @@ const StyledWrapper = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-    
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,13 +46,13 @@ const StyledWrapper = styled.div`
   .process-text {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--primary-500);
   }
 
   .loader {
     width: 360px;
     height: 28px;
-    background-color: #000;
+    background-color: var(--primary-500);
     position: relative;
     overflow: hidden;
     border-radius: 6px;
@@ -110,7 +110,7 @@ const StyledWrapper = styled.div`
     75% {
       content: "75%";
     }
-    100% {
+    a 100% {
       content: "100%";
     }
   }

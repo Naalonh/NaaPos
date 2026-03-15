@@ -113,7 +113,7 @@ const Toast: React.FC<ToastProps> = ({
       <div
         className={`
         flex items-center justify-between
-        w-[300px] px-2 py-1.5
+        w-75 px-2 py-1.5
         rounded border
         shadow-[4px_4px_10px_-10px_rgba(0,0,0,1)]
         ${config.bgColor} ${config.borderColor}

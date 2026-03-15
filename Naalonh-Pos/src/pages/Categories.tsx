@@ -27,7 +27,7 @@ import {
 interface Category {
   id: string;
   name: string;
-  status: "active" | "inactive" | "disabled";
+  status: "active" | "disabled";
   sortOrder?: number;
   createdAt?: string;
 }
@@ -45,7 +45,7 @@ interface WarningState {
 
 interface FormData {
   name: string;
-  status: "active" | "inactive" | "disabled";
+  status: "active" | "disabled";
 }
 
 const Categories: React.FC = () => {

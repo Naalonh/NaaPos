@@ -27,7 +27,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   return (
     <div className="relative w-full">
       <input
-        className="peer w-full py-[10px] pr-[45px] pl-[15px] border border-[#6366f1] rounded-[5px] bg-[var(--primary-50)] outline-none text-[16px] box-border"
+        className="peer w-full py-2.5 pr-11.25 pl-3.75 border border-[#6366f1] rounded-[5px] bg-(--primary-50) outline-none text-[16px] box-border"
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -35,7 +35,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         required
       />
 
-      <label className="absolute left-[15px] top-[10px] pointer-events-none peer-focus:[&>span]:-translate-y-[34px] peer-valid:[&>span]:-translate-y-[34px]">
+      <label className="absolute left-3.75 top-2.5 pointer-events-none peer-focus:[&>span]:-translate-y-8.5 peer-valid:[&>span]:-translate-y-8.5">
         {letters.map((letter, index) => (
           <span
             key={index}
@@ -46,7 +46,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         ))}
       </label>
 
-      <div className="absolute right-[12px] top-0 h-full flex items-center text-[#6366f1] text-xl cursor-pointer z-10">
+      <div className="absolute right-3 top-0 h-full flex items-center text-[#6366f1] text-xl cursor-pointer z-10">
         {value && value.length > 0 ? (
           <HiOutlineX onClick={clearSearch} />
         ) : (

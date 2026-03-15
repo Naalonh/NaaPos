@@ -16,10 +16,17 @@ import {
   HiOutlineViewGrid,
 } from "react-icons/hi";
 
-const Sidebar = () => {
-  const [activeItem, setActiveItem] = useState("Dashboard");
-  const [shopName, setShopName] = useState("Loading...");
-  const menuItems = [
+interface MenuItem {
+  icon: React.ReactElement;
+  label: string;
+  path: string;
+}
+
+const Sidebar: React.FC = () => {
+  const [activeItem, setActiveItem] = useState<string>("Dashboard");
+  const [shopName, setShopName] = useState<string>("Loading...");
+
+  const menuItems: MenuItem[] = [
     { icon: <HiOutlineHome />, label: "Dashboard", path: "/dashboard" },
     { icon: <HiOutlineShoppingCart />, label: "Orders", path: "/orders" },
     { icon: <HiOutlineTable />, label: "Tables", path: "/tables" },
@@ -31,7 +38,7 @@ const Sidebar = () => {
     { icon: <HiOutlineCog />, label: "Settings", path: "/settings" },
   ];
 
-  const loadShop = async () => {
+  const loadShop = async (): Promise<void> => {
     try {
       const {
         data: { session },
@@ -61,6 +68,10 @@ const Sidebar = () => {
     loadShop();
   }, []);
 
+  const handleLogout = (): void => {
+    console.log("Logging out...");
+  };
+
   return (
     <aside className="group font-(--font-main) w-20 h-screen bg-(--bg-main) fixed left-0 top-0 flex flex-col z-950 border-r border-(--border-color) overflow-hidden transition-[width] duration-300 ease-in-out-[cubic-bezier(0.4,0,0.2,1)] hover:w-65 hover:shadow-[10px_0_30px_rgba(0,0,0,0.03)]">
       <div className="h-20 px-3.5 flex items-center">
@@ -80,10 +91,12 @@ const Sidebar = () => {
             <NavLink
               key={item.label}
               to={item.path}
-              className={({ isActive }) =>
-                `cursor-pointer flex items-center py-2.5 px-3 rounded-lg text-(--text-dim) transition-all duration-200 ease-in-out relative hover:bg-(--bg-subtle) hover:text-[var(--primary-500)]${isActive ? "bg-[#f1f5ff] text-(--primary-500)" : ""}`
+              className={({ isActive }: { isActive: boolean }): string =>
+                `cursor-pointer flex items-center py-2.5 px-3 rounded-lg text-(--text-dim) transition-all duration-200 ease-in-out relative hover:bg-(--bg-subtle) hover:text-[var(--primary-500)]${
+                  isActive ? " bg-[#f1f5ff] text-(--primary-500)" : ""
+                }`
               }>
-              {({ isActive }) => (
+              {({ isActive }: { isActive: boolean }): React.ReactElement => (
                 <>
                   {isActive && (
                     <div className="absolute left-0 w-0.75 h-4 bg-(--primary-500) rounded-r" />
@@ -104,7 +117,7 @@ const Sidebar = () => {
       <div className="p-3.5 border-t border-(--border-color) m-auto group-hover:w-full group-hover:justify-center group-hover:flex">
         <button
           className="group-hover:justify-center cursor-pointer flex items-center py-2.5 px-3 rounded-lg text-(--text-dim) transition-all duration-200 ease-in-out w-[calc(100%-24px)] hover:bg-[#fff1f2] hover:text-[#e11d48]"
-          onClick={() => console.log("Logging out...")}>
+          onClick={handleLogout}>
           <span className="w-6 h-6 flex items-center justify-center text-[20px] shrink-0">
             <HiOutlineLogout />
           </span>
