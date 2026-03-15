@@ -345,7 +345,7 @@ const Categories: React.FC = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-50 font-sans antialiased text-gray-900">
+    <div className="flex-1 ml-20 transition-[margin-left] duration-300 ease-in">
       <Sidebar />
 
       <Warning
@@ -381,7 +381,7 @@ const Categories: React.FC = () => {
           onSubmit={handleSubmit}
         />
 
-        <main className="p-8 flex flex-col gap-6 max-w-350 mx-auto w-full">
+        <main className="py-7 px-8 flex flex-col gap-7">
           {/* Page Header */}
           <div className="flex justify-between items-center flex-wrap gap-5">
             <div className="flex items-center gap-4">

@@ -14,6 +14,8 @@ import highlightText from "../utils/highlightText";
 import Button from "../components/ui/Button";
 import { Download, Plus } from "lucide-react";
 import { BiEdit, BiTrash } from "react-icons/bi";
+
+
 const Products = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);

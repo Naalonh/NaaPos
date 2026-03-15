@@ -5,19 +5,55 @@ import "./OptionModal.css";
 import Switch from "../common/Switch";
 import AnimatedCheckbox from "../common/AnimatedCheckbox";
 
-const OptionModal = ({ isOpen, onClose, onSave, editingGroup }) => {
-  const [groupName, setGroupName] = useState("");
-  const [isRequired, setIsRequired] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [options, setOptions] = useState([
+type Option = {
+  id?: number | string | null;
+  name: string;
+  price: number | "";
+  image: string;
+  description: string;
+  status: boolean;
+};
+
+type OptionGroup = {
+  id?: number | null;
+  groupName: string;
+  required: boolean;
+  status: "ACTIVE" | "DISABLED";
+  options: Option[];
+};
+
+type OptionModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (group: OptionGroup) => void;
+  editingGroup?: OptionGroup | null;
+};
+
+const OptionModal: React.FC<OptionModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  editingGroup,
+}) => {
+  const [groupName, setGroupName] = useState<string>("");
+
+  const [isRequired, setIsRequired] = useState<boolean>(false);
+
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const [options, setOptions] = useState<Option[]>([
     { name: "", price: 0, image: "", description: "", status: true },
   ]);
-  const [status, setStatus] = useState(true);
 
-  // Image Upload & Crop Statesf
-  const [tempImage, setTempImage] = useState(null);
-  const [currentEditingIndex, setCurrentEditingIndex] = useState(null);
-  const fileInputRef = useRef(null);
+  const [status, setStatus] = useState<boolean>(true);
+
+  const [tempImage, setTempImage] = useState<string | null>(null);
+
+  const [currentEditingIndex, setCurrentEditingIndex] = useState<number | null>(
+    null,
+  );
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!isOpen) return null;
 
@@ -35,39 +71,56 @@ const OptionModal = ({ isOpen, onClose, onSave, editingGroup }) => {
     ]);
   };
 
-  const handleOptionChange = (index, field, value) => {
-    const newOptions = [...options];
-    newOptions[index][field] =
-      field === "price" ? (value === "" ? "" : parseFloat(value)) : value;
-    setOptions(newOptions);
+  const handleOptionChange = <K extends keyof Option>(
+    index: number,
+    field: K,
+    value: Option[K],
+  ) => {
+    setOptions((prev) => {
+      const newOptions = [...prev];
+
+      if (field === "price") {
+        newOptions[index].price = value === "" ? "" : Number(value);
+      } else {
+        newOptions[index][field] = value;
+      }
+
+      return newOptions;
+    });
   };
 
-  const handleImageClick = (index) => {
+  const handleImageClick = (index: number) => {
     setCurrentEditingIndex(index);
-    fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
 
-  const onFileChange = (e) => {
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader();
-      reader.addEventListener("load", () => setTempImage(reader.result));
+      reader.addEventListener("load", () =>
+        setTempImage(reader.result as string),
+      );
       reader.readAsDataURL(e.target.files[0]);
     }
   };
 
-  const handleCropSave = (croppedImage) => {
-    handleOptionChange(currentEditingIndex, "image", croppedImage);
+  const handleCropSave = (croppedImage: string) => {
+    if (currentEditingIndex !== null) {
+      handleOptionChange(currentEditingIndex, "image", croppedImage);
+    }
+
     setTempImage(null);
     setCurrentEditingIndex(null);
   };
 
-  const removeOption = (index) => {
+  const removeOption = (index: number) => {
     if (options.length > 1) {
       setOptions(options.filter((_, i) => i !== index));
     }
   };
 
-  const handleSave = () => {
+  const handleSave = (): void => {
     if (!groupName.trim()) {
       alert("Group name is required");
       return;
@@ -80,18 +133,18 @@ const OptionModal = ({ isOpen, onClose, onSave, editingGroup }) => {
       return;
     }
 
-    const newGroup = {
-      id: editingGroup?.id || null,
+    const newGroup: OptionGroup = {
+      id: editingGroup?.id ?? null,
       groupName: groupName.trim(),
       required: isRequired,
       status: status ? "ACTIVE" : "DISABLED",
       options: cleanedOptions.map((opt) => ({
-        id: opt.id || null,
+        id: opt.id ?? null,
         name: opt.name,
-        price: opt.price || 0,
-        image: opt.image || "",
-        description: opt.description || "",
-        status: opt.status ? "ACTIVE" : "DISABLED",
+        price: Number(opt.price) || 0,
+        image: opt.image ?? "",
+        description: opt.description ?? "",
+        status: opt.status,
       })),
     };
 
@@ -113,11 +166,12 @@ const OptionModal = ({ isOpen, onClose, onSave, editingGroup }) => {
       setStatus(editingGroup.status === "ACTIVE");
       setOptions(
         editingGroup.options?.map((opt) => ({
-          id: opt.id || null,
+          id: opt.id ?? null,
           name: opt.name,
-          price: opt.price || 0,
-          image: opt.image || "",
-          description: opt.description || "",
+          price: opt.price ?? 0,
+          image: opt.image ?? "",
+          description: opt.description ?? "",
+          status: opt.status,
         })) || [],
       );
     }
@@ -230,7 +284,13 @@ const OptionModal = ({ isOpen, onClose, onSave, editingGroup }) => {
                           placeholder="0.00"
                           value={opt.price}
                           onChange={(e) =>
-                            handleOptionChange(index, "price", e.target.value)
+                            handleOptionChange(
+                              index,
+                              "price",
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value),
+                            )
                           }
                         />
                       </div>
