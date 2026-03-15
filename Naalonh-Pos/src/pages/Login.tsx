@@ -130,19 +130,19 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-white to-[#f1f5ff]">
-      <div className="flex max-w-[1000px] min-h-[640px] w-full bg-[var(--bg-main)]  border  border-[#f1f5f9] rounded-2xl overflow-hidden shadow-[var(--shadow-xl)] animate-[slideUp_0.5s_ease-out]">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-linear-to-br from-white to-[#f1f5ff]">
+      <div className="flex max-w-250 min-h-160 w-full bg-(--bg-main)  border  border-[#f1f5f9] rounded-2xl overflow-hidden shadow-xl animate-[slideUp_0.5s_ease-out]">
         {/* Left Panel - Welcome with cover.png */}
-        <div className="flex-1 px-[40px] py-[60px] flex flex-col justify-center text-center text-white relative bg-[var(--primary-500)] before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1)_0%,transparent_60%)] before:opacity-40">
+        <div className="flex-1 px-10 py-15 flex flex-col justify-center text-center text-white relative bg-(--primary-500) before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1)_0%,transparent_60%)] before:opacity-40">
           <div className="relative z-10 max-w-[320px] mx-auto">
-            <h1 className="font-[var(--font-display)] text-[35px] font-bold mb-2 tracking-[-0.02em] leading-[1.2] text-white/90">
+            <h1 className="font-display text-[35px] font-bold mb-2 tracking-[-0.02em] leading-[1.2] text-white/90">
               Welcome to
             </h1>
 
             <img
               src="/c1.png"
               alt="Naalonh POS Cover"
-              className="w-full max-w-[280px] h-auto border-2 border-white/10 rounded-2xl my-6 m-auto shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-in-out hover:scale-[1.02]"
+              className="w-full max-w-70 h-auto border-2 border-white/10 rounded-2xl my-6 m-auto shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-in-out hover:scale-[1.02]"
             />
 
             <p className="text-sm text-white/80 leading-[1.6] font-normal">
@@ -152,20 +152,20 @@ const Login = () => {
         </div>
 
         {/* Right Panel - Login Form */}
-        <div className="flex-1 bg-[var(--bg-main)] py-[60px] px-[48px] flex flex-col justify-center">
+        <div className="flex-1 bg-(--bg-main) py-15 px-12 flex flex-col justify-center">
           <div className="mb-6">
-            <h2 className=" font-[var(--font-display)] text-2xl text-[var(--text-main)] mb-2 font-bold tracking-[-0.02em]">
+            <h2 className=" font-display text-2xl text-(--text-main) mb-2 font-bold tracking-[-0.02em]">
               Sign in
             </h2>
-            <p className="text-base text-[var(--text-dim)] font-normal">
+            <p className="text-base text-(--text-dim) font-normal">
               Please sign in to your account
             </p>
           </div>
 
           {errors.general && (
             <div
-              className="bg-[var(--danger-50)] text-[var(--danger-700)] 
-                px-[18px] py-[12px] rounded-[12px] mb-3 border border-[var(--danger-500)] font-medium 
+              className="bg-(--danger-50) text-(--danger-700)
+                px-4.5 py-3 rounded-xl mb-3 border border-(--danger-500) font-medium 
                 text-sm">
               {errors.general}
             </div>
@@ -241,9 +241,11 @@ const Login = () => {
               </a>
             </div>
 
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
-            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              text={isLoading ? "Signing in..." : "Sign In"}
+            />
           </form>
 
           <div className="mt-4 text-center text-sm text-[var(--text-dim)] pt-4 border-t border-[var(--border-color)]">

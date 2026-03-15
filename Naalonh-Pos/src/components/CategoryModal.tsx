@@ -1,8 +1,30 @@
+// CategoryModal.tsx
 import React, { useEffect, useState } from "react";
 import "../css/CategoryModal.css";
 import "../css/Buttons.css";
 
-const CategoryModal = ({
+interface Category {
+  id: string;
+  name: string;
+  status: "active" | "inactive" | "disabled";
+  sortOrder?: number;
+  createdAt?: string;
+}
+
+interface CategoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (formData: {
+    name: string;
+    status: "active" | "inactive" | "disabled";
+  }) => Promise<void>;
+  mode: "create" | "edit";
+  category?: Category | null;
+  nextSortOrder?: number;
+  loading?: boolean;
+}
+
+const CategoryModal: React.FC<CategoryModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
@@ -14,7 +36,7 @@ const CategoryModal = ({
   const [formData, setFormData] = useState({
     name: "",
     sortOrder: 0,
-    status: "active",
+    status: "active" as "active" | "inactive" | "disabled",
   });
 
   // Prefill form when editing
@@ -32,11 +54,11 @@ const CategoryModal = ({
         status: "active",
       });
     }
-  }, [mode, category, isOpen]);
+  }, [mode, category, isOpen, nextSortOrder]);
 
   if (!isOpen) return null;
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -45,7 +67,7 @@ const CategoryModal = ({
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
@@ -54,6 +76,10 @@ const CategoryModal = ({
     }
 
     onSubmit(formData);
+  };
+
+  const handleStatusChange = (status: "active" | "inactive" | "disabled") => {
+    setFormData((prev) => ({ ...prev, status }));
   };
 
   return (
@@ -96,24 +122,30 @@ const CategoryModal = ({
             <label>Status</label>
             <div className="cm-custom-select">
               <div className="cm-selected">
-                {formData.status === "active" ? "Active" : "Disabled"}
+                {formData.status === "active"
+                  ? "Active"
+                  : formData.status === "inactive"
+                    ? "Inactive"
+                    : "Disabled"}
                 <span className="cm-arrow">▾</span>
               </div>
 
               <div className="cm-options">
                 <div
                   className="cm-option"
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, status: "active" }))
-                  }>
+                  onClick={() => handleStatusChange("active")}>
                   Active
                 </div>
 
                 <div
                   className="cm-option"
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, status: "disabled" }))
-                  }>
+                  onClick={() => handleStatusChange("inactive")}>
+                  Inactive
+                </div>
+
+                <div
+                  className="cm-option"
+                  onClick={() => handleStatusChange("disabled")}>
                   Disabled
                 </div>
               </div>
