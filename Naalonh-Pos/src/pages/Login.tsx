@@ -2,39 +2,54 @@ import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config";
 import supabase from "../lib/supabase";
 import { Eye, EyeOff } from "lucide-react";
-// import "../css/Login.css";
+import Label from "../components/ui/Label";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import Checkbox from "../components/ui/Checkbox";
+
+type FormData = {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+};
+
+type ErrorType = {
+  email?: string;
+  password?: string;
+  general?: string;
+};
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errors, setErrors] = useState<ErrorType>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   useEffect(() => {
     document.title = "Login | Naalonh POS";
   }, []);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
     rememberMe: false,
   });
 
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-
   // Handle input changes
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name as keyof FormData]: type === "checkbox" ? checked : value,
     }));
     // Clear error for this field when user starts typing
-    if (errors[name]) {
+    if (errors[name as keyof ErrorType]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   // Validate form
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): ErrorType => {
+    const newErrors: ErrorType = {};
 
     if (!formData.email) {
       newErrors.email = "Email is required";
@@ -52,7 +67,7 @@ const Login = () => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const newErrors = validateForm();
@@ -104,9 +119,11 @@ const Login = () => {
       // 5️⃣ Redirect
       window.location.href = "/dashboard";
     } catch (error) {
-      setErrors({
-        general: error.message || "Login failed",
-      });
+      if (error instanceof Error) {
+        setErrors({ general: error.message });
+      } else {
+        setErrors({ general: "Login failed" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +131,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-white to-[#f1f5ff]">
-      <div className="flex max-w-[1000px] min-h-[640px] w-full bg-[var(--bg-main)]  border  border-[var(--border-light)] rounded-2xl overflow-hidden shadow-[var(--shadow-xl)] animate-[slideUp_0.5s_ease-out]">
+      <div className="flex max-w-[1000px] min-h-[640px] w-full bg-[var(--bg-main)]  border  border-[#f1f5f9] rounded-2xl overflow-hidden shadow-[var(--shadow-xl)] animate-[slideUp_0.5s_ease-out]">
         {/* Left Panel - Welcome with cover.png */}
         <div className="flex-1 px-[40px] py-[60px] flex flex-col justify-center text-center text-white relative bg-[var(--primary-500)] before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1)_0%,transparent_60%)] before:opacity-40">
           <div className="relative z-10 max-w-[320px] mx-auto">
@@ -156,12 +173,8 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="mb-4">
-              <label
-                className="block mb-2 text-[var(--text-secondary)] font-medium text-sm tracking-[0.3px]"
-                htmlFor="email">
-                Email Address
-              </label>
-              <input
+              <Label htmlFor="email">Email Address</Label>
+              <Input
                 type="email"
                 id="email"
                 name="email"
@@ -169,14 +182,8 @@ const Login = () => {
                 onChange={handleChange}
                 placeholder="Enter your email"
                 disabled={isLoading}
-                className={`w-full px-4 py-3 rounded-lg border outline-none transition placeholder:text-[var(--text-light)] placeholder:font-normal placeholder:text-sm focus:outline-none placeholder:border-[var(--primary-500)] focus:bg-[var(--bg-main)] focus:shadow-[0_0_0_4px_var(--primary-50)]
-                  ${
-                    errors.email
-                      ? "border-[var(--danger-500)]"
-                      : "border-[var(--border-color)] focus:border-[var(--primary-500)]"
-                  }`}
+                error={errors.email}
               />
-
               {errors.email && (
                 <span
                   className="bg-[var(--danger-50)] text-[var(--danger-700)] 
@@ -188,32 +195,23 @@ const Login = () => {
             </div>
 
             <div className="mb-4">
-              <label
-                className="block mb-2 text-[var(--text-secondary)] font-medium text-sm tracking-[0.3px]"
-                htmlFor="password">
-                Password
-              </label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative flex items-center">
-                <input
+                <Input
                   type={showPassword ? "text" : "password"} // Toggle type
                   id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className={`w-full px-4 py-3 rounded-lg border outline-none transition placeholder:text-[var(--text-light)] placeholder:font-normal placeholder:text-sm focus:outline-none placeholder:border-[var(--primary-500)] focus:bg-[var(--bg-main)] focus:shadow-[0_0_0_4px_var(--primary-50)]
-                  ${
-                    errors.password
-                      ? "border-[var(--danger-500)]"
-                      : "border-[var(--border-color)] focus:border-[var(--primary-500)]"
-                  }`}
+                  error={errors.password}
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   className="absolute right-3 bg-transparent  border-none text-[var(--text-light)] cursor-pointer flex items-center justify-center p-1 transition-colors duration-200 ease-in-out hover:text-[var(--primary-500)] focus:outline-none z-10"
                   onClick={() => setShowPassword(!showPassword)}
-                  tabIndex="-1">
+                  tabIndex={-1}>
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
@@ -224,28 +222,18 @@ const Login = () => {
               )}
             </div>
 
-            <div className="form-options">
-              <div className="checkbox-wrapper-46">
-                <input
-                  type="checkbox"
-                  id="cbx-46"
-                  className="inp-cbx"
-                  name="rememberMe"
-                  checked={formData.rememberMe}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                />
-
-                <label htmlFor="cbx-46" className="cbx">
-                  <span>
-                    <svg viewBox="0 0 12 10" height="10px" width="12px">
-                      <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                    </svg>
-                  </span>
-                  <span>Remember me</span>
-                </label>
-              </div>
-
+            <div className="flex justify-between items-center mb-5">
+              <Checkbox
+                checked={formData.rememberMe}
+                onChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    rememberMe: checked,
+                  }))
+                }
+                disabled={isLoading}
+                label="Remember me"
+              />
               <a
                 href="/forgot-password"
                 className="text-[var(--primary-600)] text-sm font-medium no-underline transition-colors duration-200 ease hover:text-[var(--primary-500)] hover:underline">
@@ -253,18 +241,17 @@ const Login = () => {
               </a>
             </div>
 
-            <button
-              type="submit"
-              className="w-full p-4 bg-[var(--primary-600)] text-white  rounded-xl text-base font-semibold cursor-pointer transition-all duration-200 ease-in-out shadow-[var(--shadow-md)] tracking-[0.3px]"
-              disabled={isLoading}>
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
-            </button>
+            </Button>
           </form>
 
-          <div className="login-footer">
+          <div className="mt-4 text-center text-sm text-[var(--text-dim)] pt-4 border-t border-[var(--border-color)]">
             <p>
               Don't have an account?{" "}
-              <a href="/Register" className="signup-link">
+              <a
+                href="/Register"
+                className="text-[var(--primary-600)] text-sm font-medium no-underline transition-colors duration-200 ease hover:text-[var(--primary-500)] hover:underline">
                 Create Account
               </a>
             </p>

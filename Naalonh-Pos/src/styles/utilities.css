@@ -1,0 +1,20 @@
+/* Used for small helper styles that Tailwind doesn't provide. */
+@layer utilities {
+  /* 
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+*/
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+}

@@ -317,7 +317,7 @@ const Categories = () => {
       />
 
       {toast && (
-        <ul className="notification-container">
+        <ul className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
           <Toast
             type={toast.type}
             message={toast.message}
@@ -346,7 +346,7 @@ const Categories = () => {
           {/* Page Header */}
           <div className="page-header">
             <div className="header-left">
-              <div className="search-wrapper">
+              <div className="relative w-[400px]">
                 <SearchInput
                   value={searchQuery}
                   onChange={(val) => {
@@ -357,11 +357,11 @@ const Categories = () => {
                 />
 
                 {showSuggestions && searchQuery && (
-                  <div className="search-dropdown">
+                  <div className="absolute w-full bg-white border border-[#e5e7eb] rounded-[8px] shadow-[0_6px_20px_rgba(0,0,0,0.08)] z-10">
                     {filteredCategories.map((cat) => (
                       <div
                         key={cat.id}
-                        className="search-item"
+                        className="py-[10px] px-[14px] cursor-pointer hover:bg-[#f3f4f6]"
                         onClick={() => {
                           setSearchQuery(cat.name);
                           setShowSuggestions(false);
@@ -369,7 +369,7 @@ const Categories = () => {
                         {highlightText(
                           cat.name,
                           searchQuery,
-                          "search-highlight",
+                          "text-[#6366f1] font-semibold",
                         )}
                       </div>
                     ))}
