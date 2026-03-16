@@ -20,7 +20,7 @@ const Dashboard: React.FC = () => {
           <section className="grid grid-cols-4 gap-5 max-[1200px]:grid-cols-2 max-[768px]:grid-cols-1">
             {/* Revenue */}
             <div className="bg-white rounded-[20px] p-6 flex items-start gap-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border border-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.03)] hover:border-slate-200">
-              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-white flex-shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-gradient-to-br from-indigo-500 to-violet-500">
+              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-linear-to-br from-indigo-500 to-violet-500">
                 <svg
                   width="20"
                   height="20"
@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
 
             {/* Orders */}
             <div className="bg-white rounded-[20px] p-6 flex items-start gap-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border border-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.03)] hover:border-slate-200">
-              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-white flex-shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-gradient-to-br from-blue-500 to-blue-600">
+              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-linear-to-br from-blue-500 to-blue-600">
                 <svg
                   width="20"
                   height="20"
@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
 
             {/* Products */}
             <div className="bg-white rounded-[20px] p-6 flex items-start gap-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border border-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.03)] hover:border-slate-200">
-              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-white flex-shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-gradient-to-br from-emerald-500 to-emerald-600">
+              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-linear-to-br from-emerald-500 to-emerald-600">
                 <svg
                   width="20"
                   height="20"
@@ -107,8 +107,8 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Low Stock */}
-            <div className="bg-gradient-to-r from-white to-red-50 rounded-[20px] p-6 flex items-start gap-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border border-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.03)] hover:border-slate-200">
-              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-white flex-shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-gradient-to-br from-red-500 to-red-600">
+            <div className="bg-linear-to-r from-white to-red-50 rounded-[20px] p-6 flex items-start gap-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border border-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.03)] hover:border-slate-200">
+              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center text-white shrink-0 shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-linear-to-br from-red-500 to-red-600">
                 <svg
                   width="20"
                   height="20"
@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <div className="h-[200px] bg-gradient-to-b from-white to-slate-50 rounded-2xl flex items-end justify-center border border-slate-100 overflow-hidden">
+                <div className="h-50 bg-linear-to-b from-white to-slate-50 rounded-2xl flex items-end justify-center border border-slate-100 overflow-hidden">
                   <svg
                     width="400"
                     height="200"
@@ -349,7 +349,7 @@ const Dashboard: React.FC = () => {
                         <td
                           className={`px-4 py-4 text-slate-700 ${i < arr.length - 1 ? "border-b border-slate-100" : ""}`}>
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-slate-100 rounded-[10px] flex items-center justify-center text-xs font-semibold text-slate-700 font-[Outfit,system-ui,sans-serif] border border-slate-200 flex-shrink-0">
+                            <div className="w-8 h-8 bg-slate-100 rounded-[10px] flex items-center justify-center text-xs font-semibold text-slate-700 font-[Outfit,system-ui,sans-serif] border border-slate-200 shrink-0">
                               {row.avatar}
                             </div>
                             <span>{row.name}</span>

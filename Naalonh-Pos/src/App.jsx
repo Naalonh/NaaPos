@@ -4,7 +4,6 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Categories from "./pages/Categories";
-import Pdf from "./pages/Pdf";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -41,14 +40,6 @@ function App() {
         }
       />
 
-      <Route
-        path="/pdf"
-        element={
-          <ProtectedRoute>
-            <Pdf />
-          </ProtectedRoute>
-        }
-      />
     </Routes>
   );
 }

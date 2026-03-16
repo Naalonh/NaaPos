@@ -6,6 +6,8 @@ import { BiSolidImage, BiPlus, BiTrash, BiEditAlt } from "react-icons/bi";
 import Switch from "../common/Switch";
 import Input from "../ui/Input";
 
+// ── Types ────────────────────────────────────────────────────────────────────
+
 type SelectedImage = {
   preview: string;
   file: File;
@@ -24,6 +26,24 @@ type ProductModalProps = {
   categories: Category[];
 };
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+// Defined outside the component so it has a stable reference and won't
+// trigger unnecessary re-renders or stale-closure warnings in useEffect.
+const DEFAULT_FORM: ProductForm = {
+  name: "",
+  category: "",
+  currency: "USD",
+  price: "",
+  description: "",
+  status: "active",
+  image: null,
+  imageFile: null,
+  optionGroups: [],
+};
+
+// ── Component ────────────────────────────────────────────────────────────────
+
 const ProductModal: React.FC<ProductModalProps> = ({
   isOpen,
   onClose,
@@ -31,33 +51,21 @@ const ProductModal: React.FC<ProductModalProps> = ({
   initialData,
   categories,
 }) => {
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [isCropModalOpen, setIsCropModalOpen] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
     null,
   );
-  const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
+  const [isOptionModalOpen, setIsOptionModalOpen] = useState<boolean>(false);
   const [editingOptionGroup, setEditingOptionGroup] =
     useState<OptionGroup | null>(null);
-  const defaultForm: ProductForm = {
-    name: "",
-    category: "",
-    currency: "USD",
-    price: "",
-    description: "",
-    status: "active",
-    image: null,
-    imageFile: null,
-    optionGroups: [],
-  };
-
-  const [formData, setFormData] = useState<ProductForm>(defaultForm);
+  const [formData, setFormData] = useState<ProductForm>(DEFAULT_FORM);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        ...defaultForm,
+        ...DEFAULT_FORM,
         ...initialData,
         optionGroups: (initialData.optionGroups || []).map((g) => ({
           ...g,
@@ -66,7 +74,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
       });
     } else {
       setFormData({
-        ...defaultForm,
+        ...DEFAULT_FORM,
         category: categories?.[1]?.id || "",
       });
     }
@@ -74,7 +82,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
 
     if (file) {
@@ -83,7 +91,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
       reader.onload = () => {
         setSelectedImage({
           preview: reader.result as string,
-          file: file,
+          file,
         });
 
         setIsCropModalOpen(true);
@@ -95,11 +103,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
     }
   };
 
-  const handleCropSave = async (croppedImageUrl: string) => {
+  const handleCropSave = async (croppedImageUrl: string): Promise<void> => {
     const response = await fetch(croppedImageUrl);
     const blob = await response.blob();
 
-    const croppedFile = new File([blob], "product.jpg", { type: "image/jpeg" });
+    // Use PNG to preserve transparency (e.g. after BG removal)
+    const croppedFile = new File([blob], "product.png", { type: "image/png" });
 
     setFormData((prev) => ({
       ...prev,
@@ -110,7 +119,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
     setIsCropModalOpen(false);
   };
 
-  const handleAddOptionGroup = (newGroup: OptionGroup) => {
+  const handleAddOptionGroup = (newGroup: OptionGroup): void => {
     setFormData((prev) => ({
       ...prev,
       optionGroups: [
@@ -123,14 +132,16 @@ const ProductModal: React.FC<ProductModalProps> = ({
     }));
   };
 
-  const removeOptionGroup = (id: string) => {
+  const removeOptionGroup = (id: string): void => {
     setFormData((prev) => ({
       ...prev,
       optionGroups: prev.optionGroups.filter((g) => g.id !== id),
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -140,7 +151,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
     try {
       await onSave(formData);
-      setFormData(defaultForm);
+      setFormData(DEFAULT_FORM);
       onClose();
     } finally {
       setIsSaving(false);
@@ -158,7 +169,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
             <button
               className="bg-none border-none text-2xl text-slate-500 cursor-pointer"
               onClick={() => {
-                setFormData(defaultForm);
+                setFormData(DEFAULT_FORM);
                 onClose();
               }}>
               &times;
@@ -210,7 +221,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 required
                 value={formData.name}
                 placeholder="e.g. Grilled Salmon"
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
@@ -293,7 +304,7 @@ group-hover:translate-y-0 z-100">
                   step="0.01"
                   required
                   value={formData.price ?? ""}
-                  onChange={(e) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData({
                       ...formData,
                       price:
@@ -311,7 +322,7 @@ group-hover:translate-y-0 z-100">
               <textarea
                 rows={2}
                 value={formData.description}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
                 className="p-2.75 border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
@@ -323,7 +334,7 @@ group-hover:translate-y-0 z-100">
 
               <Switch
                 checked={formData.status === "active"}
-                onChange={(checked) =>
+                onChange={(checked: boolean) =>
                   setFormData((prev) => ({
                     ...prev,
                     status: checked ? "active" : "disabled",
@@ -372,7 +383,7 @@ group-hover:translate-y-0 z-100">
 
                       <button
                         type="button"
-                        onClick={(e) => {
+                        onClick={(e: React.MouseEvent) => {
                           e.stopPropagation();
                           if (group.id != null) {
                             removeOptionGroup(String(group.id));
@@ -396,7 +407,7 @@ group-hover:translate-y-0 z-100">
                   setIsOptionModalOpen(false);
                   setEditingOptionGroup(null);
                 }}
-                onSave={(groupData) => {
+                onSave={(groupData: OptionGroup) => {
                   if (editingOptionGroup) {
                     setFormData((prev) => ({
                       ...prev,

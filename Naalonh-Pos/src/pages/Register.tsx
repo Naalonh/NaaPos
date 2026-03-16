@@ -288,8 +288,8 @@ const Register: React.FC = () => {
 
   if (registrationSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#667eea] to-[#764ba2] p-5">
-        <div className="bg-white rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-[60px_40px] w-full max-w-[550px] text-center animate-[slideUp_0.5s_ease]">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#667eea] to-[#764ba2] p-5">
+        <div className="bg-white rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-[60px_40px] w-full max-w-137.5 text-center animate-[slideUp_0.5s_ease]">
           <div className="w-20 h-20 bg-green-500 text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-5 animate-[scaleIn_0.5s_ease]">
             ✓
           </div>
@@ -304,7 +304,7 @@ const Register: React.FC = () => {
             . Please check your inbox to verify your email address.
           </p>
           <button
-            className="w-full py-3.5 bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)]"
+            className="w-full py-3.5 bg-linear-to-br from-[#667eea] to-[#764ba2] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)]"
             onClick={() => (window.location.href = "/login")}>
             Proceed to Login
           </button>
@@ -330,10 +330,10 @@ const Register: React.FC = () => {
         }
       `}</style>
 
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#667eea] to-[#764ba2] p-5">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#667eea] to-[#764ba2] p-5">
         <div
-          className="bg-white rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-10 w-full max-w-[550px] max-h-[90vh] overflow-y-auto
-            [animation:slideUp_0.5s_ease]
+          className="bg-white rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-10 w-full max-w-137.5 max-h-[90vh] overflow-y-auto
+            animate-[slideUp_0.5s_ease]
             [scrollbar-width:thin] [scrollbar-color:#c1c1c1_#f1f1f1]
             max-[600px]:px-5 max-[480px]:px-4">
           {/* Header */}
@@ -472,7 +472,7 @@ const Register: React.FC = () => {
                   />
                 </div>
                 <span
-                  className="text-xs font-semibold min-w-[70px]"
+                  className="text-xs font-semibold min-w-17.5"
                   style={{ color: strength.color }}>
                   {strength.label}
                 </span>
@@ -515,7 +515,7 @@ const Register: React.FC = () => {
                   checked={formData.agreeToTerms}
                   onChange={handleChange}
                   disabled={isLoading}
-                  className="w-[18px] h-[18px] mt-0.5 cursor-pointer max-[480px]:mt-[3px]"
+                  className="w-4.5 h-4.5 mt-0.5 cursor-pointer max-[480px]:mt-0.75"
                 />
                 <span className="text-[#555] text-sm leading-relaxed">
                   I agree to the{" "}
@@ -547,7 +547,7 @@ const Register: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 hover:enabled:shadow-[0_5px_20px_rgba(102,126,234,0.4)]">
+              className="w-full py-3.5 bg-linear-to-br from-[#667eea] to-[#764ba2] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 hover:enabled:shadow-[0_5px_20px_rgba(102,126,234,0.4)]">
               {isLoading ? (
                 <>
                   <span className="w-5 h-5 border-[3px] border-white/30 rounded-full border-t-white animate-spin" />

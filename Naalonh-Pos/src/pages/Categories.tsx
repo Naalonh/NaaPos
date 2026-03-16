@@ -10,6 +10,7 @@ import Toast from "../components/Toast";
 import Warning from "../components/Warning";
 import SearchInput from "../components/SearchInput";
 import highlightText from "../utils/highlightText";
+import { Category } from "../types/category";
 
 import {
   HiOutlineDotsVertical,
@@ -22,14 +23,6 @@ import {
   HiOutlineSortAscending,
 } from "react-icons/hi";
 
-// Types
-interface Category {
-  id: string;
-  name: string;
-  status: "active" | "disabled";
-  sortOrder?: number;
-  createdAt?: string;
-}
 
 interface ToastState {
   type: "success" | "error";

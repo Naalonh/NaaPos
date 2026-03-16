@@ -17,6 +17,8 @@ export default async function getCroppedImg(imageSrc, pixelCrop) {
   canvas.width = cropWidth;
   canvas.height = cropHeight;
 
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // keep transparency
+
   ctx.drawImage(
     image,
     cropX,
@@ -29,5 +31,5 @@ export default async function getCroppedImg(imageSrc, pixelCrop) {
     cropHeight,
   );
 
-  return canvas.toDataURL("image/jpeg", 0.95);
+  return canvas.toDataURL("image/png"); // preserve transparent background
 }

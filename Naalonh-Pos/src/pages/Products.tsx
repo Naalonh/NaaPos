@@ -1,4 +1,4 @@
-// Products.jsx
+// Products.tsx
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -13,23 +13,79 @@ import highlightText from "../utils/highlightText";
 import Button from "../components/ui/Button";
 import { Download, Plus } from "lucide-react";
 import { BiEdit, BiTrash } from "react-icons/bi";
+import { ProductForm, OptionGroup } from "../types/product";
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 
-const Products = () => {
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState([]);
-  const [viewMode, setViewMode] = useState("grid");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [toasts, setToasts] = useState([]);
-  const [editingOptionGroup, setEditingOptionGroup] = useState(null);
-  const [processing, setProcessing] = useState(false);
-  const [processMessage, setProcessMessage] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
+interface Product {
+  id: string | number;
+  name: string;
+  description: string;
+  price: number | string;
+  currency: string;
+  status: string;
+  imageUrl: string;
+  categoryId?: string | number;
+  category_id?: string | number;
+  createdAt: string;
+  updatedAt?: string;
+  optionGroups?: OptionGroup[];
+}
+
+interface ProductFormData {
+  id?: string | number;
+  name: string;
+  category: string | number;
+  price: number | string;
+  currency: string;
+  description: string;
+  status: string;
+  image?: string;
+  imageFile?: File;
+  optionGroups?: OptionGroup[];
+}
+
+type ToastType = "success" | "error" | "info" | "warning";
+
+interface ToastItem {
+  id: number;
+  type: ToastType;
+  message: string;
+}
+
+type StatusKey = "active" | "inactive" | "draft" | "archived";
+
+interface StatusConfig {
+  bg: string;
+  text: string;
+  label: string;
+}
+
+// ── Component ────────────────────────────────────────────────────────────────
+
+const Products: React.FC = () => {
+  const [editingProduct, setEditingProduct] = useState<ProductForm | null>(
+    null,
+  );
+  const [openMenuId, setOpenMenuId] = useState<string | number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedCategory, setSelectedCategory] = useState<string | number>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [editingOptionGroup, setEditingOptionGroup] = useState<OptionGroup | null>(null);
+  const [processing, setProcessing] = useState<boolean>(false);
+  const [processMessage, setProcessMessage] = useState<string>("");
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
 
   useEffect(() => {
     const shopName = localStorage.getItem("shopName") || "POS";
@@ -48,7 +104,7 @@ const Products = () => {
   }, []);
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = async (): Promise<void> => {
       setLoading(true);
       await fetchCategories();
       await fetchProducts();
@@ -58,7 +114,7 @@ const Products = () => {
     loadData();
   }, []);
 
-  const showToast = (type, message) => {
+  const showToast = (type: ToastType, message: string): void => {
     const id = Date.now();
 
     setToasts((prev) => [...prev, { id, type, message }]);
@@ -68,7 +124,7 @@ const Products = () => {
     }, 4000);
   };
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (): Promise<void> => {
     try {
       const token = getToken();
       const shopId = localStorage.getItem("shopId");
@@ -91,7 +147,7 @@ const Products = () => {
         throw new Error("Failed request");
       }
 
-      const data = await response.json();
+      const data: Category[] = await response.json();
 
       setCategories([{ id: "all", name: "All Products" }, ...data]);
     } catch (error) {
@@ -99,7 +155,7 @@ const Products = () => {
     }
   };
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (): Promise<void> => {
     try {
       const token = getToken();
 
@@ -113,7 +169,7 @@ const Products = () => {
         throw new Error("Failed to load products");
       }
 
-      const data = await response.json();
+      const data: Product[] = await response.json();
 
       console.log("Products from API:", data); // 👈 Debug here
 
@@ -136,15 +192,15 @@ const Products = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const getStatusBadge = (status) => {
-    const statusConfig = {
+  const getStatusBadge = (status: string): React.ReactElement => {
+    const statusConfig: Record<StatusKey, StatusConfig> = {
       active: { bg: "bg-green-100", text: "text-green-800", label: "Active" },
       inactive: { bg: "bg-gray-100", text: "text-gray-800", label: "Inactive" },
       draft: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Draft" },
       archived: { bg: "bg-red-100", text: "text-red-800", label: "Archived" },
     };
 
-    const config = statusConfig[status] || statusConfig.inactive;
+    const config = statusConfig[status as StatusKey] || statusConfig.inactive;
 
     return (
       <span
@@ -154,7 +210,7 @@ const Products = () => {
     );
   };
 
-  const handleSaveProduct = async (productData) => {
+  const handleSaveProduct = async (productData: ProductForm): Promise<void> => {
     try {
       const isEditing = Boolean(productData.id);
 
@@ -167,9 +223,9 @@ const Products = () => {
       const token = getToken();
       const formData = new FormData();
 
-      formData.append("categoryId", productData.category);
+      formData.append("categoryId", String(productData.category));
       formData.append("name", productData.name);
-      formData.append("price", productData.price);
+      formData.append("price", String(productData.price));
       formData.append("currency", productData.currency);
       formData.append("description", productData.description);
       formData.append("status", productData.status);
@@ -217,11 +273,11 @@ const Products = () => {
     }
   };
 
-  const toggleMenu = (productId) => {
+  const toggleMenu = (productId: string | number): void => {
     setOpenMenuId((prev) => (prev === productId ? null : productId));
   };
 
-  const handleEditProduct = async (product) => {
+  const handleEditProduct = async (product: Product): Promise<void> => {
     const token = getToken();
 
     const res = await fetch(`${API_BASE}/api/products/${product.id}`, {
@@ -230,24 +286,25 @@ const Products = () => {
       },
     });
 
-    const data = await res.json();
+    const data: Product & { categoryId: string | number } = await res.json();
 
     setEditingProduct({
-      id: data.id,
+      id: data.id ?? null,
       name: data.name,
-      category: data.categoryId,
-      price: data.price,
-      currency: data.currency,
+      category: String(data.categoryId),
+      price: Number(data.price) || "",
+      currency: data.currency as "USD" | "KHR",
       description: data.description,
-      status: data.status,
-      image: data.imageUrl,
+      status: data.status as "active" | "disabled",
+      image: data.imageUrl ?? null,
+      imageFile: null,
       optionGroups: data.optionGroups || [],
     });
 
     setIsProductModalOpen(true);
   };
 
-  const handleDeleteProduct = async (productId) => {
+  const handleDeleteProduct = async (productId: string | number): Promise<void> => {
     try {
       setProcessMessage("Deleting product...");
       setProcessing(true);
@@ -299,7 +356,7 @@ const Products = () => {
         }}
         onSave={handleSaveProduct}
         categories={categories}
-        initialData={editingProduct}
+        initialData={editingProduct || undefined}
       />
       <Sidebar />
 
@@ -313,7 +370,7 @@ const Products = () => {
               onClick={(e) => e.stopPropagation()}>
               <SearchInput
                 value={searchQuery}
-                onChange={(val) => {
+                onChange={(val: string) => {
                   setSearchQuery(val);
                   setShowSuggestions(true);
                 }}
@@ -490,8 +547,8 @@ const Products = () => {
                       src={`${product.imageUrl}?t=${product.updatedAt || Date.now()}`}
                       alt={product.name}
                       loading="lazy"
-                      onError={(e) => {
-                        e.target.src = "/placeholder.png";
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                        e.currentTarget.src = "/placeholder.png";
                       }}
                     />
                     {/* product-card-header menu */}
@@ -499,7 +556,7 @@ const Products = () => {
                       {/* product-menu-btn */}
                       <button
                         className="bg-none border-none p-1.5 rounded-lg text-(--gray-400) cursor-pointer transition-all duration-200 ease-in hover:bg-(--gray-100) hover:text-(--gray-700)"
-                        onClick={(e) => {
+                        onClick={(e: React.MouseEvent) => {
                           e.stopPropagation();
                           toggleMenu(product.id);
                         }}>
@@ -520,7 +577,9 @@ const Products = () => {
                         // product-dropdown
                         <div
                           className="absolute right-0 top-8.75 bg-white rounded-lg border border-[#eee] shadow-[0_6px_20px_rgba(0,0,0,0.08)] w-35 overflow-hidden z-10"
-                          onClick={(e) => e.stopPropagation()}>
+                          onClick={(e: React.MouseEvent) =>
+                            e.stopPropagation()
+                          }>
                           {/* dropdown-item edit */}
                           <button
                             className="w-full flex items-center gap-2 px-3 py-2.5 border-none bg-transparent cursor-pointer text-sm hover:bg-[#f6f6f6]"
@@ -648,8 +707,10 @@ const Products = () => {
                             className="w-9 h-9 bg-gray-100 rounded-[10px] flex items-center justify-center text-lg border border-gray-200 object-cover"
                             src={`${product.imageUrl}?t=${product.updatedAt || Date.now()}`}
                             alt={product.name}
-                            onError={(e) => {
-                              e.target.src = "/placeholder-image.png"; // Add a placeholder image
+                            onError={(
+                              e: React.SyntheticEvent<HTMLImageElement>,
+                            ) => {
+                              e.currentTarget.src = "/placeholder-image.png";
                             }}
                           />
                           <div>

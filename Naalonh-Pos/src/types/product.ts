@@ -16,7 +16,7 @@ export type OptionGroup = {
 };
 
 export type ProductForm = {
-  id?: string | number | null; // optional
+  id?: string | number | null;
   name: string;
   category: string;
   currency: "USD" | "KHR";
