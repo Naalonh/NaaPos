@@ -101,16 +101,17 @@ const Categories: React.FC = () => {
     setProcessing(true);
 
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const token = localStorage.getItem("token");
 
-      if (!session) throw new Error("No session found");
+      if (!token) {
+        window.location.href = "/login";
+        return;
+      }
 
       const response = await fetch(`${API_BASE}/api/categories/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
