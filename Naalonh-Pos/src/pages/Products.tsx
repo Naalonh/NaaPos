@@ -12,7 +12,7 @@ import { getToken } from "../utils/auth";
 import highlightText from "../utils/highlightText";
 import Button from "../components/ui/Button";
 import { Download, Plus } from "lucide-react";
-import { BiEdit, BiTrash } from "react-icons/bi";
+import { BiEdit, BiTrash, BiSolidImage } from "react-icons/bi";
 import { ProductForm, OptionGroup } from "../types/product";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -21,7 +21,6 @@ interface Category {
   id: string;
   name: string;
 }
-
 
 interface Product {
   id: string | number;
@@ -73,19 +72,25 @@ const Products: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<ProductForm | null>(
     null,
   );
+
   const [openMenuId, setOpenMenuId] = useState<string | number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [selectedCategory, setSelectedCategory] = useState<string | number>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string | number>(
+    "all",
+  );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isProductModalOpen, setIsProductModalOpen] = useState<boolean>(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const [editingOptionGroup, setEditingOptionGroup] = useState<OptionGroup | null>(null);
+  const [editingOptionGroup, setEditingOptionGroup] =
+    useState<OptionGroup | null>(null);
   const [processing, setProcessing] = useState<boolean>(false);
   const [processMessage, setProcessMessage] = useState<string>("");
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = viewMode === "grid" ? 16 : 15;
 
   useEffect(() => {
     const shopName = localStorage.getItem("shopName") || "POS";
@@ -149,12 +154,15 @@ const Products: React.FC = () => {
 
       const data: Category[] = await response.json();
 
+      console.log("Categories from API:", data);
+
       setCategories([{ id: "all", name: "All Products" }, ...data]);
     } catch (error) {
       console.error("Failed to load categories:", error);
     }
   };
 
+  
   const fetchProducts = async (): Promise<void> => {
     try {
       const token = getToken();
@@ -192,6 +200,12 @@ const Products: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * productsPerPage,
+    currentPage * productsPerPage,
+  );
   const getStatusBadge = (status: string): React.ReactElement => {
     const statusConfig: Record<StatusKey, StatusConfig> = {
       active: { bg: "bg-green-100", text: "text-green-800", label: "Active" },
@@ -304,7 +318,9 @@ const Products: React.FC = () => {
     setIsProductModalOpen(true);
   };
 
-  const handleDeleteProduct = async (productId: string | number): Promise<void> => {
+  const handleDeleteProduct = async (
+    productId: string | number,
+  ): Promise<void> => {
     try {
       setProcessMessage("Deleting product...");
       setProcessing(true);
@@ -534,7 +550,7 @@ const Products: React.FC = () => {
                 </div>
               )}
 
-              {filteredProducts.map((product) => (
+              {paginatedProducts.map((product) => (
                 // product-card
                 <div
                   key={product.id}
@@ -542,15 +558,18 @@ const Products: React.FC = () => {
                   {/* product-card-header */}
                   <div className="flex justify-between items-start">
                     {/* product-card-header img */}
-                    <img
-                      className="w-1/2 aspect-square object-cover rounded-xl"
-                      src={`${product.imageUrl}?t=${product.updatedAt || Date.now()}`}
-                      alt={product.name}
-                      loading="lazy"
-                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                        e.currentTarget.src = "/placeholder.png";
-                      }}
-                    />
+                    {product.imageUrl ? (
+                      <img
+                        className="w-1/2 aspect-square object-cover rounded-xl"
+                        src={`${product.imageUrl}?t=${product.updatedAt || Date.now()}`}
+                        alt={product.name}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-1/2 aspect-square flex items-center justify-center bg-gray-100 rounded-xl text-gray-400">
+                        <BiSolidImage size={40} />
+                      </div>
+                    )}
                     {/* product-card-header menu */}
                     <div className="relative">
                       {/* product-menu-btn */}
@@ -635,8 +654,8 @@ const Products: React.FC = () => {
                         {
                           categories.find(
                             (c) =>
-                              c.id ===
-                              (product.category_id ?? product.categoryId),
+                              String(c.id) ===
+                              String(product.category_id ?? product.categoryId),
                           )?.name
                         }
                       </span>
@@ -694,7 +713,7 @@ const Products: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {filteredProducts.map((product) => (
+                  {paginatedProducts.map((product) => (
                     <tr
                       key={product.id}
                       className="hover:bg-gray-50 transition-colors">
@@ -703,16 +722,20 @@ const Products: React.FC = () => {
                         {/* product-cell-info */}
                         <div className="flex items-center gap-3">
                           {/* product-table-image */}
-                          <img
-                            className="w-9 h-9 bg-gray-100 rounded-[10px] flex items-center justify-center text-lg border border-gray-200 object-cover"
-                            src={`${product.imageUrl}?t=${product.updatedAt || Date.now()}`}
-                            alt={product.name}
-                            onError={(
-                              e: React.SyntheticEvent<HTMLImageElement>,
-                            ) => {
-                              e.currentTarget.src = "/placeholder-image.png";
-                            }}
-                          />
+                          {product.imageUrl ? (
+                            <img
+                              className="w-9 h-9 bg-gray-100 rounded-[10px] border border-gray-200 object-cover"
+                              src={`${product.imageUrl}?t=${product.updatedAt || Date.now()}`}
+                              alt={product.name}
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            <div className="w-9 h-9 bg-gray-100 rounded-[10px] border border-gray-200 flex items-center justify-center text-gray-400">
+                              <BiSolidImage size={18} />
+                            </div>
+                          )}
                           <div>
                             {/* product-name-cell */}
                             <div className="font-semibold text-gray-900 font-display mb-0.5">
@@ -728,10 +751,9 @@ const Products: React.FC = () => {
 
                       {/* category-cell */}
                       <td className="category-cell px-6 py-4 text-gray-600">
-                        {categories.find(
-                          (c) =>
-                            c.id ===
-                            (product.category_id ?? product.categoryId),
+                        {categories.find((c) =>
+                          String(c.id) ===
+                          String(product.category_id ?? product.categoryId),
                         )?.name || "Uncategorized"}
                       </td>
 
@@ -795,35 +817,39 @@ const Products: React.FC = () => {
           )}
 
           <div className="products-footer px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-            <div className="pagination flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2">
+              {/* Previous */}
               <button
-                className="pagination-btn px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className="px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-50">
                 Previous
               </button>
 
+              {/* Page Numbers */}
               <div className="flex items-center gap-1">
-                <button className="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-                  1
-                </button>
-                <button className="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                  2
-                </button>
-                <button className="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                  3
-                </button>
-                <button className="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                  4
-                </button>
-                <span className="w-9 h-9 flex items-center justify-center text-gray-500">
-                  ...
-                </span>
-                <button className="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                  10
-                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors
+          ${
+            currentPage === page
+              ? "bg-blue-600 text-white"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}>
+                      {page}
+                    </button>
+                  ),
+                )}
               </div>
 
-              <button className="pagination-btn px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+              {/* Next */}
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-50">
                 Next
               </button>
             </div>

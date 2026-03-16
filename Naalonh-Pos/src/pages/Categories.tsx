@@ -234,18 +234,19 @@ const Categories: React.FC = () => {
     setLoading(true);
 
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const token = localStorage.getItem("token");
 
-      if (!session) throw new Error("No active session");
+      if (!token) {
+        window.location.href = "/login";
+        return;
+      }
 
       const response = await fetch(
         `${API_BASE}/api/categories/shop/${shopId}`,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${token}`,
           },
         },
       );
@@ -271,17 +272,22 @@ const Categories: React.FC = () => {
 
   const loadShop = useCallback(async (): Promise<void> => {
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      let token = localStorage.getItem("token");
 
-      if (!session) throw new Error("No session");
+      if (!token) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      localStorage.setItem("token", session.access_token);
+        if (!session) throw new Error("No session");
+
+        token = session.access_token;
+        localStorage.setItem("token", token);
+      }
 
       const response = await fetch(`${API_BASE}/api/shops/me`, {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

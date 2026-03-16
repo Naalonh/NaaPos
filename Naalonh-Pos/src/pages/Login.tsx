@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config";
 import supabase from "../lib/supabase";
-import { Eye, EyeOff } from "lucide-react";
-import Label from "../components/ui/Label";
-import Input from "../components/ui/Input";
-import Button from "../components/ui/Button";
-import Checkbox from "../components/ui/Checkbox";
+import FormField from "../components/ui/FormField";
 
 type FormData = {
   email: string;
@@ -20,247 +16,344 @@ type ErrorType = {
 };
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<ErrorType>({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    document.title = "Login | Naalonh POS";
-  }, []);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [focused, setFocused] = useState("");
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
     rememberMe: false,
   });
 
-  // Handle input changes
+  useEffect(() => {
+    document.title = "Login | Naalonh POS";
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name as keyof FormData]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
-    // Clear error for this field when user starts typing
     if (errors[name as keyof ErrorType]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  // Validate form
   const validateForm = (): ErrorType => {
-    const newErrors: ErrorType = {};
-
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    return newErrors;
+    const e: ErrorType = {};
+    if (!formData.email) e.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      e.email = "Invalid email address";
+    if (!formData.password) e.password = "Password is required";
+    else if (formData.password.length < 6) e.password = "At least 6 characters";
+    return e;
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
     setIsLoading(true);
-
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
-
       if (error) throw new Error(error.message);
-
-      // 1️⃣ Get JWT token from Supabase
       const token = data.session.access_token;
-
-      // 2️⃣ Save token
-      if (formData.rememberMe) {
-        localStorage.setItem("token", token);
-      } else {
-        sessionStorage.setItem("token", token);
-      }
-
-      // 3️⃣ Fetch shop info from Spring Boot
       const res = await fetch(`${API_BASE}/api/shops/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch shop");
-      }
-
+      if (!res.ok) throw new Error("Failed to fetch shop");
       const shop = await res.json();
-
-      // 4️⃣ Save shop name
-      const storage = formData.rememberMe ? localStorage : sessionStorage;
-
-      storage.setItem("token", token);
-      storage.setItem("shopName", shop.name);
-      storage.setItem("shopId", shop.id);
-
-      // 5️⃣ Redirect
+      
+      localStorage.clear();
+      localStorage.setItem("token", token);
+      localStorage.setItem("shopName", shop.name);
+      localStorage.setItem("shopId", shop.id);
       window.location.href = "/dashboard";
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrors({ general: error.message });
-      } else {
-        setErrors({ general: "Login failed" });
-      }
+    } catch (err) {
+      setErrors({
+        general: err instanceof Error ? err.message : "Login failed",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  // ── Floating label field ──────────────────────────────────────────────────
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-linear-to-br from-white to-[#f1f5ff]">
-      <div className="flex max-w-250 min-h-160 w-full bg-(--bg-main)  border  border-[#f1f5f9] rounded-2xl overflow-hidden shadow-xl animate-[slideUp_0.5s_ease-out]">
-        {/* Left Panel - Welcome with cover.png */}
-        <div className="flex-1 px-10 py-15 flex flex-col justify-center text-center text-white relative bg-(--primary-500) before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1)_0%,transparent_60%)] before:opacity-40">
-          <div className="relative z-10 max-w-[320px] mx-auto">
-            <h1 className="font-display text-[35px] font-bold mb-2 tracking-[-0.02em] leading-[1.2] text-white/90">
-              Welcome to
-            </h1>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap');
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .anim-fadeup { animation: fadeUp 0.45s ease forwards; font-family: 'DM Sans', sans-serif; }
+        .spin { animation: spin 0.8s linear infinite; }
+        .serif { font-family: 'DM Serif Display', serif; }
+      `}</style>
 
-            <img
-              src="/c1.png"
-              alt="Naalonh POS Cover"
-              className="w-full max-w-70 h-auto border-2 border-white/10 rounded-2xl my-6 m-auto shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-in-out hover:scale-[1.02]"
-            />
-
-            <p className="text-sm text-white/80 leading-[1.6] font-normal">
-              Run your shop smarter with real-time sales and inventory
-            </p>
-          </div>
-        </div>
-
-        {/* Right Panel - Login Form */}
-        <div className="flex-1 bg-(--bg-main) py-15 px-12 flex flex-col justify-center">
-          <div className="mb-6">
-            <h2 className=" font-display text-2xl text-(--text-main) mb-2 font-bold tracking-[-0.02em]">
-              Sign in
-            </h2>
-            <p className="text-base text-(--text-dim) font-normal">
-              Please sign in to your account
-            </p>
-          </div>
-
-          {errors.general && (
-            <div
-              className="bg-(--danger-50) text-(--danger-700)
-                px-4.5 py-3 rounded-xl mb-3 border border-(--danger-500) font-medium 
-                text-sm">
-              {errors.general}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="login-form">
-            <div className="mb-4">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
-                disabled={isLoading}
-                error={!!errors.email}
-              />
-              {errors.email && (
-                <span
-                  className="bg-(--danger-50) text-(--danger-700) 
-                px-4.5 py-3 rounded-xl mb-6 border border-(--danger-500) font-medium 
-                text-sm">
-                  {errors.email}
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
+        <div className="anim-fadeup flex w-full max-w-215 rounded-2xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04),0_24px_48px_rgba(0,0,0,0.08)]">
+          {/* ── Left panel ── */}
+          <div className="hidden lg:flex w-[320px] shrink-0 bg-slate-900 p-12 flex-col justify-between">
+            <div>
+              {/* Logo */}
+              <div className="flex items-center gap-2.5 mb-14">
+                <div className="w-9 h-9 rounded-[9px] bg-white flex items-center justify-center shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <rect
+                      x="3"
+                      y="3"
+                      width="7"
+                      height="7"
+                      rx="1.5"
+                      fill="#0f172a"
+                    />
+                    <rect
+                      x="14"
+                      y="3"
+                      width="7"
+                      height="7"
+                      rx="1.5"
+                      fill="#0f172a"
+                      opacity="0.4"
+                    />
+                    <rect
+                      x="3"
+                      y="14"
+                      width="7"
+                      height="7"
+                      rx="1.5"
+                      fill="#0f172a"
+                      opacity="0.4"
+                    />
+                    <rect
+                      x="14"
+                      y="14"
+                      width="7"
+                      height="7"
+                      rx="1.5"
+                      fill="#0f172a"
+                    />
+                  </svg>
+                </div>
+                <span className="text-white text-base font-semibold tracking-tight">
+                  Naalonh POS
                 </span>
-              )}
-            </div>
-
-            <div className="mb-4">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative flex items-center">
-                <Input
-                  type={showPassword ? "text" : "password"} // Toggle type
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Enter your password"
-                  error={!!errors.password}
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 bg-transparent  border-none text-(--text-light) cursor-pointer flex items-center justify-center p-1 transition-colors duration-200 ease-in-out hover:text-(--primary-500) focus:outline-none z-10"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={-1}>
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
               </div>
-              {errors.password && (
-                <span className="bg-(--danger-50) text-(--danger-700) px-4.5 py-3 rounded-xl mb-6 border border-(--danger-500) font-medium text-sm">
-                  {errors.password}
-                </span>
-              )}
+
+              <h1 className="serif text-white text-[30px] leading-snug font-normal mb-3.5">
+                Good to see
+                <br />
+                you <em className="text-slate-400">again.</em>
+              </h1>
+
+              <p className="text-slate-500 text-sm leading-relaxed mb-11">
+                Sign in to continue managing your shop and tracking your sales.
+              </p>
+
+              {/* Stats */}
+              <div className="border-t border-white/[0.07] pt-7 flex flex-col gap-5">
+                {[
+                  { value: "10k+", label: "Transactions processed" },
+                  { value: "99.9%", label: "Uptime reliability" },
+                  { value: "< 1s", label: "Average load time" },
+                ].map(({ value, label }) => (
+                  <div key={label}>
+                    <div className="text-white text-[22px] font-semibold tracking-tight leading-none">
+                      {value}
+                    </div>
+                    <div className="text-slate-500 text-[12.5px] mt-0.5">
+                      {label}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="flex justify-between items-center mb-5">
-              <Checkbox
-                checked={formData.rememberMe}
-                onChange={(checked) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    rememberMe: checked,
-                  }))
-                }
-                disabled={isLoading}
-                label="Remember me"
-              />
-              <a
-                href="/forgot-password"
-                className="text-(--primary-600) text-sm font-medium no-underline transition-colors duration-200 ease hover:text-(--primary-500) hover:underline">
-                Forgot Password?
-              </a>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoading}
-              text={isLoading ? "Signing in..." : "Sign In"}
-            />
-          </form>
-
-          <div className="mt-4 text-center text-sm text-(--text-dim) pt-4 border-t border-(--border-color)">
-            <p>
-              Don't have an account?{" "}
-              <a
-                href="/Register"
-                className="text-(--primary-600) text-sm font-medium no-underline transition-colors duration-200 ease hover:text-(--primary-500) hover:underline">
-                Create Account
-              </a>
+            <p className="text-slate-700 text-xs">
+              © {new Date().getFullYear()} Naalonh POS
             </p>
+          </div>
+
+          {/* ── Right panel ── */}
+          <div className="flex-1 bg-white px-10 py-12 flex flex-col justify-center">
+            {/* Header */}
+            <div className="mb-9">
+              <p className="text-slate-400 text-[13px] font-semibold tracking-[0.08em] uppercase mb-2">
+                Welcome back
+              </p>
+              <h2 className="text-slate-900 text-[26px] font-semibold tracking-tight mb-1.5">
+                Sign in to your account
+              </h2>
+              <p className="text-slate-400 text-sm">
+                No account yet?{" "}
+                <a
+                  href="/register"
+                  className="text-slate-900 font-semibold border-b border-slate-900 no-underline hover:text-slate-600 hover:border-slate-600 transition-colors">
+                  Create one →
+                </a>
+              </p>
+            </div>
+
+            {/* General error */}
+            {errors.general && (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-[13.5px] font-medium rounded-[10px] px-4 py-3 mb-5">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="shrink-0">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                {errors.general}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} noValidate>
+              <FormField
+                id="email"
+                label="Email Address"
+                type="email"
+                placeholder="you@example.com"
+                formData={formData}
+                errors={errors}
+                focused={focused}
+                setFocused={setFocused}
+                handleChange={handleChange}
+                showPassword={showPassword}
+                togglePasswordVisibility={togglePasswordVisibility}
+                isLoading={isLoading}
+              />
+
+              <FormField
+                id="password"
+                label="Password"
+                placeholder="Your password"
+                isPassword
+                formData={formData}
+                errors={errors}
+                focused={focused}
+                setFocused={setFocused}
+                handleChange={handleChange}
+                showPassword={showPassword}
+                togglePasswordVisibility={togglePasswordVisibility}
+                isLoading={isLoading}
+              />
+
+              {/* Remember + Forgot */}
+              <div className="flex items-center justify-between mb-7">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <div className="relative shrink-0">
+                    <input
+                      type="checkbox"
+                      name="rememberMe"
+                      checked={formData.rememberMe}
+                      onChange={handleChange}
+                      disabled={isLoading}
+                      className="opacity-0 absolute w-4.5 h-4.5 cursor-pointer m-0"
+                    />
+                    <div
+                      className={[
+                        "w-4.5 h-4.5 rounded-[5px] border-[1.5px] flex items-center justify-center transition-all duration-150",
+                        formData.rememberMe
+                          ? "bg-slate-900 border-slate-900"
+                          : "bg-white border-slate-300",
+                      ].join(" ")}>
+                      {formData.rememberMe && (
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="white"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[13.5px] text-slate-500">
+                    Remember me
+                  </span>
+                </label>
+
+                <a
+                  href="/forgot-password"
+                  className="text-[13.5px] text-slate-900 font-semibold no-underline border-b border-slate-900 hover:text-slate-600 hover:border-slate-600 transition-colors">
+                  Forgot password?
+                </a>
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3.75 bg-slate-900 hover:bg-slate-800 disabled:opacity-55 disabled:cursor-not-allowed text-white text-[15px] font-semibold rounded-[10px] flex items-center justify-center gap-2.5 transition-colors duration-200 tracking-tight">
+                {isLoading ? (
+                  <>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="spin">
+                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                    </svg>
+                    Signing in…
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </button>
+            </form>
+
+            {/* Trust footer */}
+            <div className="mt-7 pt-6 border-t border-slate-100 flex items-center justify-center gap-1.5">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#cbd5e1"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <span className="text-[12.5px] text-slate-300">
+                Secured with end-to-end encryption
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -29,8 +29,11 @@ public class ProductController {
 
     // GET PRODUCT BY ID
     @GetMapping("/{id}")
-    public Map<String, Object> getProductById(@PathVariable UUID id) {
-        return productService.getProductById(id);
+    public Map<String, Object> getProductById(
+            @PathVariable UUID id,
+            Authentication authentication
+    ) {
+        return productService.getProductById(id, authentication);
     }
 
     // CREATE PRODUCT

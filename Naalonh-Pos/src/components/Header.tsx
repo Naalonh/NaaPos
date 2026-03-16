@@ -22,15 +22,12 @@ const Header = ({ title = "Dashboard" }: HeaderProps) => {
 
   const loadUser = async (): Promise<void> => {
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) return;
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
       const res = await fetch("http://localhost:8081/api/users/me", {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -122,6 +119,10 @@ const Header = ({ title = "Dashboard" }: HeaderProps) => {
                 style={{ color: "#e11d48" }}
                 onClick={async () => {
                   await supabase.auth.signOut();
+
+                  localStorage.clear();
+                  sessionStorage.clear();
+
                   window.location.href = "/login";
                 }}>
                 Sign Out

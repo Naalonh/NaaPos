@@ -40,15 +40,12 @@ const Sidebar: React.FC = () => {
 
   const loadShop = async (): Promise<void> => {
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) return;
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
       const res = await fetch("http://localhost:8081/api/shops/me", {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

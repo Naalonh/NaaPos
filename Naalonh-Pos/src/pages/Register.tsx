@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 import supabase from "../lib/supabase";
-
-// ── Types ──────────────────────────────────────────────────────────────────
+import FormField from "../components/ui/FormField";
 
 interface FormData {
   shopName: string;
@@ -35,34 +33,48 @@ interface StrengthLevel {
   label: string;
   color: string;
   width: string;
+  barColor: string;
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
 const STRENGTH_LEVELS: Record<number, StrengthLevel> = {
-  0: { label: "Very Weak", color: "#dc3545", width: "20%" },
-  1: { label: "Weak", color: "#ffc107", width: "40%" },
-  2: { label: "Fair", color: "#fd7e14", width: "60%" },
-  3: { label: "Good", color: "#20c997", width: "80%" },
-  4: { label: "Strong", color: "#28a745", width: "90%" },
-  5: { label: "Very Strong", color: "#28a745", width: "100%" },
+  0: {
+    label: "Very Weak",
+    color: "text-red-500",
+    width: "w-[16%]",
+    barColor: "bg-red-400",
+  },
+  1: {
+    label: "Weak",
+    color: "text-orange-500",
+    width: "w-[32%]",
+    barColor: "bg-orange-400",
+  },
+  2: {
+    label: "Fair",
+    color: "text-yellow-500",
+    width: "w-[52%]",
+    barColor: "bg-yellow-400",
+  },
+  3: {
+    label: "Good",
+    color: "text-green-500",
+    width: "w-[72%]",
+    barColor: "bg-green-400",
+  },
+  4: {
+    label: "Strong",
+    color: "text-green-600",
+    width: "w-[88%]",
+    barColor: "bg-green-500",
+  },
+  5: {
+    label: "Very Strong",
+    color: "text-green-700",
+    width: "w-full",
+    barColor: "bg-green-600",
+  },
 };
 
-// ── Shared input class builder ─────────────────────────────────────────────
-
-const inputCls = (hasError: boolean, disabled: boolean): string =>
-  [
-    "w-full px-4 py-3 border-2 rounded-[10px] text-base transition-all duration-300",
-    "focus:outline-none",
-    hasError
-      ? "border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(231,76,60,0.1)]"
-      : "border-gray-200 focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]",
-    disabled ? "bg-gray-100 cursor-not-allowed" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-// ── Component ──────────────────────────────────────────────────────────────
 
 const Register: React.FC = () => {
   useEffect(() => {
@@ -73,7 +85,6 @@ const Register: React.FC = () => {
     password: false,
     confirmPassword: false,
   });
-
   const [formData, setFormData] = useState<FormData>({
     shopName: "",
     fullName: "",
@@ -83,119 +94,79 @@ const Register: React.FC = () => {
     confirmPassword: "",
     agreeToTerms: false,
   });
-
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [registrationSuccess, setRegistrationSuccess] =
-    useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [focused, setFocused] = useState("");
 
-  const togglePasswordVisibility = (field: keyof ShowPassword): void => {
+  const togglePasswordVisibility = (field: keyof ShowPassword) =>
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
-  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    if (errors[name as keyof FormErrors]) {
+    if (errors[name as keyof FormErrors])
       setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
   };
 
   const validateForm = (): FormErrors => {
-    const newErrors: FormErrors = {};
-
-    if (!formData.shopName.trim()) {
-      newErrors.shopName = "Shop name is required";
-    } else if (formData.shopName.length < 3) {
-      newErrors.shopName = "Shop name must be at least 3 characters";
-    }
-
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    } else if (formData.fullName.length < 3) {
-      newErrors.fullName = "Full name must be at least 3 characters";
-    }
-
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    const cleanedPhone = formData.phoneNumber.replace(/\s+/g, "");
-    if (!cleanedPhone) {
-      newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^\+?[0-9]{8,15}$/.test(cleanedPhone)) {
-      newErrors.phoneNumber = "Phone number must contain 8–15 digits";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (!/(?=.*[a-z])/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one lowercase letter";
-    } else if (!/(?=.*[A-Z])/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one uppercase letter";
-    } else if (!/(?=.*\d)/.test(formData.password)) {
-      newErrors.password = "Password must contain at least one number";
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = "You must agree to the terms and conditions";
-    }
-
-    return newErrors;
+    const e: FormErrors = {};
+    if (!formData.shopName.trim()) e.shopName = "Shop name is required";
+    else if (formData.shopName.length < 3) e.shopName = "At least 3 characters";
+    if (!formData.fullName.trim()) e.fullName = "Full name is required";
+    else if (formData.fullName.length < 3) e.fullName = "At least 3 characters";
+    if (!formData.email) e.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      e.email = "Invalid email address";
+    const cleaned = formData.phoneNumber.replace(/\s+/g, "");
+    if (!cleaned) e.phoneNumber = "Phone number is required";
+    else if (!/^\+?[0-9]{8,15}$/.test(cleaned))
+      e.phoneNumber = "Must be 8–15 digits";
+    if (!formData.password) e.password = "Password is required";
+    else if (formData.password.length < 8) e.password = "At least 8 characters";
+    else if (!/(?=.*[a-z])/.test(formData.password))
+      e.password = "Add a lowercase letter";
+    else if (!/(?=.*[A-Z])/.test(formData.password))
+      e.password = "Add an uppercase letter";
+    else if (!/(?=.*\d)/.test(formData.password)) e.password = "Add a number";
+    if (!formData.confirmPassword)
+      e.confirmPassword = "Please confirm your password";
+    else if (formData.password !== formData.confirmPassword)
+      e.confirmPassword = "Passwords don't match";
+    if (!formData.agreeToTerms) e.agreeToTerms = "You must agree to continue";
+    return e;
   };
 
-  const getPasswordStrength = (): StrengthLevel => {
+  const getStrength = (): StrengthLevel => {
     const { password } = formData;
-    if (!password) return { ...STRENGTH_LEVELS[0], label: "No password" };
-
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/(?=.*[a-z])/.test(password)) strength++;
-    if (/(?=.*[A-Z])/.test(password)) strength++;
-    if (/(?=.*\d)/.test(password)) strength++;
-    if (/(?=.*[@$!%*?&])/.test(password)) strength++;
-
-    return STRENGTH_LEVELS[strength] ?? STRENGTH_LEVELS[0];
+    if (!password) return { ...STRENGTH_LEVELS[0], label: "" };
+    let s = 0;
+    if (password.length >= 8) s++;
+    if (/(?=.*[a-z])/.test(password)) s++;
+    if (/(?=.*[A-Z])/.test(password)) s++;
+    if (/(?=.*\d)/.test(password)) s++;
+    if (/(?=.*[@$!%*?&])/.test(password)) s++;
+    return STRENGTH_LEVELS[s] ?? STRENGTH_LEVELS[0];
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
     setIsLoading(true);
-
     try {
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
       });
-
       if (error) throw new Error(error.message);
-
       const authUserId = data.user?.id;
-
       const response = await fetch(`${API_BASE}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -206,9 +177,8 @@ const Register: React.FC = () => {
           phone: formData.phoneNumber,
         }),
       });
-
-      if (!response.ok) throw new Error("Backend registration failed");
-
+      if (!response.ok)
+        throw new Error("Registration failed. Please try again.");
       setRegistrationSuccess(true);
     } catch (err) {
       setErrors({
@@ -219,356 +189,426 @@ const Register: React.FC = () => {
     }
   };
 
-  // ── Password requirements list ─────────────────────────────────────────
-
-  const requirements: { label: string; met: boolean }[] = [
-    { label: "At least 8 characters", met: formData.password.length >= 8 },
-    {
-      label: "One lowercase letter",
-      met: /(?=.*[a-z])/.test(formData.password),
-    },
-    {
-      label: "One uppercase letter",
-      met: /(?=.*[A-Z])/.test(formData.password),
-    },
-    { label: "One number", met: /(?=.*\d)/.test(formData.password) },
-    {
-      label: "One special character (@$!%*?&) - Optional",
-      met: /(?=.*[@$!%*?&])/.test(formData.password),
-    },
+  const requirements = [
+    { label: "8+ chars", met: formData.password.length >= 8 },
+    { label: "Lowercase", met: /(?=.*[a-z])/.test(formData.password) },
+    { label: "Uppercase", met: /(?=.*[A-Z])/.test(formData.password) },
+    { label: "Number", met: /(?=.*\d)/.test(formData.password) },
+    { label: "Special", met: /(?=.*[@$!%*?&])/.test(formData.password) },
   ];
+  const strength = getStrength();
 
-  // ── Password field helper ──────────────────────────────────────────────
-
-  const PasswordField = ({
-    id,
-    label,
-    field,
-    placeholder,
-  }: {
-    id: keyof FormData;
-    label: string;
-    field: keyof ShowPassword;
-    placeholder: string;
-  }) => (
-    <div className="mb-5">
-      <label
-        htmlFor={id as string}
-        className="block mb-2 text-[#555] font-medium text-sm">
-        {label} <span className="text-red-500 ml-0.5">*</span>
-      </label>
-      <div className="relative flex items-center">
-        <input
-          type={showPassword[field] ? "text" : "password"}
-          id={id as string}
-          name={id as string}
-          value={formData[id] as string}
-          onChange={handleChange}
-          placeholder={placeholder}
-          className={`${inputCls(!!errors[id as keyof FormErrors], isLoading)} pr-11`}
-          disabled={isLoading}
-        />
-        <button
-          type="button"
-          className="absolute right-3 bg-transparent border-none cursor-pointer text-gray-400 flex items-center justify-center p-1 transition-colors duration-300 hover:text-[#667eea] focus:outline-none"
-          onClick={() => togglePasswordVisibility(field)}
-          tabIndex={-1}>
-          {showPassword[field] ? <FiEyeOff /> : <FiEye />}
-        </button>
-      </div>
-      {errors[id as keyof FormErrors] && (
-        <span className="block mt-1.5 text-red-500 text-[13px]">
-          {errors[id as keyof FormErrors]}
-        </span>
-      )}
-    </div>
-  );
-
-  // ── Success screen ────────────────────────────────────────────────────
+  // ── Success screen ──────────────────────────────────────────────────────
 
   if (registrationSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#667eea] to-[#764ba2] p-5">
-        <div className="bg-white rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-[60px_40px] w-full max-w-137.5 text-center animate-[slideUp_0.5s_ease]">
-          <div className="w-20 h-20 bg-green-500 text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-5 animate-[scaleIn_0.5s_ease]">
-            ✓
+      <>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+          @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+          @keyframes checkPop { 0%{transform:scale(0) rotate(-20deg);} 70%{transform:scale(1.1);} 100%{transform:scale(1);} }
+          .anim-fadeup { animation: fadeUp 0.5s ease forwards; font-family: 'DM Sans', sans-serif; }
+          .anim-check { animation: checkPop 0.5s 0.1s ease both; }
+        `}</style>
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-5">
+          <div className="anim-fadeup bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_20px_40px_rgba(0,0,0,0.06)] p-16 w-full max-w-110 text-center">
+            <div className="anim-check w-18 h-18 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-7">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#16a34a"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <h2 className="text-slate-900 text-2xl font-semibold tracking-tight mb-2.5">
+              Account created
+            </h2>
+            <p className="text-slate-500 text-[15px] leading-relaxed mb-6">
+              A verification email was sent to{" "}
+              <strong className="text-slate-900">{formData.email}</strong>.
+              Please verify to continue.
+            </p>
+            <button
+              onClick={() => (window.location.href = "/login")}
+              className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white text-[15px] font-semibold rounded-[10px] transition-colors duration-200 tracking-tight">
+              Go to Login
+            </button>
           </div>
-          <h2 className="text-[#333] mb-4 font-semibold text-2xl">
-            Registration Successful!
-          </h2>
-          <p className="text-[#666] mb-2.5">
-            Your account has been created successfully.
-          </p>
-          <p className="bg-gray-50 p-4 rounded-[10px] my-5 text-sm text-[#666]">
-            We've sent a verification email to <strong>{formData.email}</strong>
-            . Please check your inbox to verify your email address.
-          </p>
-          <button
-            className="w-full py-3.5 bg-linear-to-br from-[#667eea] to-[#764ba2] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)]"
-            onClick={() => (window.location.href = "/login")}>
-            Proceed to Login
-          </button>
         </div>
-      </div>
+      </>
     );
   }
 
-  // ── Main form ─────────────────────────────────────────────────────────
-
-  const strength = getPasswordStrength();
-
+  // ── Main form ───────────────────────────────────────────────────────────
   return (
     <>
       <style>{`
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scaleIn {
-          from { transform: scale(0); }
-          to   { transform: scale(1); }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap');
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .anim-fadeup { animation: fadeUp 0.45s ease forwards; font-family: 'DM Sans', sans-serif; }
+        .spin { animation: spin 0.8s linear infinite; }
+        .serif { font-family: 'DM Serif Display', serif; }
+        .reg-scroll::-webkit-scrollbar { width: 4px; }
+        .reg-scroll::-webkit-scrollbar-track { background: transparent; }
+        .reg-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 8px; }
       `}</style>
 
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#667eea] to-[#764ba2] p-5">
-        <div
-          className="bg-white rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-10 w-full max-w-137.5 max-h-[90vh] overflow-y-auto
-            animate-[slideUp_0.5s_ease]
-            [scrollbar-width:thin] [scrollbar-color:#c1c1c1_#f1f1f1]
-            max-[600px]:px-5 max-[480px]:px-4">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-[#333] text-[28px] font-semibold mb-2.5 max-[600px]:text-2xl">
-              Create Your Account
-            </h2>
-            <p className="text-[#666] text-base">
-              Join us and start managing your shop
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
+        <div className="anim-fadeup flex w-full max-w-240 rounded-2xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04),0_24px_48px_rgba(0,0,0,0.08)]">
+          {/* ── Left panel ── */}
+          <div className="hidden lg:flex w-[320px] shrink-0 bg-slate-900 p-12 flex-col justify-between">
+            <div>
+              {/* Logo */}
+              <div className="flex items-center gap-2.5 mb-14">
+                <div className="w-9 h-9 rounded-[9px] bg-white flex items-center justify-center shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <rect
+                      x="3"
+                      y="3"
+                      width="7"
+                      height="7"
+                      rx="1.5"
+                      fill="#0f172a"
+                    />
+                    <rect
+                      x="14"
+                      y="3"
+                      width="7"
+                      height="7"
+                      rx="1.5"
+                      fill="#0f172a"
+                      opacity="0.4"
+                    />
+                    <rect
+                      x="3"
+                      y="14"
+                      width="7"
+                      height="7"
+                      rx="1.5"
+                      fill="#0f172a"
+                      opacity="0.4"
+                    />
+                    <rect
+                      x="14"
+                      y="14"
+                      width="7"
+                      height="7"
+                      rx="1.5"
+                      fill="#0f172a"
+                    />
+                  </svg>
+                </div>
+                <span className="text-white text-base font-semibold tracking-tight">
+                  Naalonh POS
+                </span>
+              </div>
+
+              <h1 className="serif text-white text-[32px] leading-snug font-normal mb-4">
+                Run your shop
+                <br />
+                <em className="text-slate-400">smarter.</em>
+              </h1>
+
+              <p className="text-slate-500 text-sm leading-relaxed mb-10">
+                Everything you need to manage sales, inventory, and customers —
+                in one place.
+              </p>
+
+              {[
+                { icon: "📦", text: "Inventory tracking" },
+                { icon: "🧾", text: "Instant receipts" },
+                { icon: "📊", text: "Sales analytics" },
+                { icon: "👥", text: "Customer management" },
+              ].map(({ icon, text }) => (
+                <div key={text} className="flex items-center gap-3 mb-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-white/6 flex items-center justify-center text-[15px] shrink-0">
+                    {icon}
+                  </div>
+                  <span className="text-slate-400 text-[13.5px]">{text}</span>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-slate-700 text-xs">
+              © {new Date().getFullYear()} Naalonh POS
             </p>
           </div>
 
-          {/* General error */}
-          {errors.general && (
-            <div className="bg-red-50 text-red-500 px-4 py-3 rounded-lg mb-5 text-sm border-l-4 border-red-500 flex items-center gap-2">
-              <span className="text-lg">⚠️</span>
-              {errors.general}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="mb-5">
-            {/* Shop Name */}
-            <div className="mb-5">
-              <label
-                htmlFor="shopName"
-                className="block mb-2 text-[#555] font-medium text-sm">
-                Shop Name <span className="text-red-500 ml-0.5">*</span>
-              </label>
-              <input
-                type="text"
-                id="shopName"
-                name="shopName"
-                value={formData.shopName}
-                onChange={handleChange}
-                placeholder="Enter your shop name"
-                className={inputCls(!!errors.shopName, isLoading)}
-                disabled={isLoading}
-              />
-              {errors.shopName && (
-                <span className="block mt-1.5 text-red-500 text-[13px]">
-                  {errors.shopName}
-                </span>
-              )}
+          {/* ── Right panel ── */}
+          <div className="reg-scroll flex-1 bg-white px-10 py-12 overflow-y-auto max-h-[90vh]">
+            {/* Header */}
+            <div className="mb-8">
+              <p className="text-slate-400 text-[13px] font-semibold tracking-[0.08em] uppercase mb-2">
+                Get started
+              </p>
+              <h2 className="text-slate-900 text-[26px] font-semibold tracking-tight mb-1.5">
+                Create your account
+              </h2>
+              <p className="text-slate-400 text-sm">
+                Already registered?{" "}
+                <a
+                  href="/login"
+                  className="text-slate-900 font-semibold border-b border-slate-900 no-underline hover:text-slate-600 hover:border-slate-600 transition-colors">
+                  Sign in →
+                </a>
+              </p>
             </div>
 
-            {/* Full Name */}
-            <div className="mb-5">
-              <label
-                htmlFor="fullName"
-                className="block mb-2 text-[#555] font-medium text-sm">
-                Full Name <span className="text-red-500 ml-0.5">*</span>
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Enter your full name"
-                className={inputCls(!!errors.fullName, isLoading)}
-                disabled={isLoading}
-              />
-              {errors.fullName && (
-                <span className="block mt-1.5 text-red-500 text-[13px]">
-                  {errors.fullName}
-                </span>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="mb-5">
-              <label
-                htmlFor="email"
-                className="block mb-2 text-[#555] font-medium text-sm">
-                Email Address <span className="text-red-500 ml-0.5">*</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
-                className={inputCls(!!errors.email, isLoading)}
-                disabled={isLoading}
-              />
-              {errors.email && (
-                <span className="block mt-1.5 text-red-500 text-[13px]">
-                  {errors.email}
-                </span>
-              )}
-            </div>
-
-            {/* Phone */}
-            <div className="mb-5">
-              <label
-                htmlFor="phoneNumber"
-                className="block mb-2 text-[#555] font-medium text-sm">
-                Phone Number <span className="text-red-500 ml-0.5">*</span>
-              </label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                placeholder="Enter your phone number"
-                className={inputCls(!!errors.phoneNumber, isLoading)}
-                disabled={isLoading}
-              />
-              {errors.phoneNumber && (
-                <span className="block mt-1.5 text-red-500 text-[13px]">
-                  {errors.phoneNumber}
-                </span>
-              )}
-            </div>
-
-            {/* Password */}
-            <PasswordField
-              id="password"
-              label="Create Password"
-              field="password"
-              placeholder="Create a strong password"
-            />
-
-            {/* Password strength meter */}
-            {formData.password && (
-              <div className="flex items-center gap-2.5 mt-2 mb-5 max-[600px]:flex-col max-[600px]:items-start max-[600px]:gap-1">
-                <div className="flex-1 h-1.5 bg-gray-200 rounded-sm overflow-hidden max-[600px]:w-full">
-                  <div
-                    className="h-full rounded-sm transition-all duration-300"
-                    style={{
-                      width: strength.width,
-                      backgroundColor: strength.color,
-                    }}
-                  />
-                </div>
-                <span
-                  className="text-xs font-semibold min-w-17.5"
-                  style={{ color: strength.color }}>
-                  {strength.label}
-                </span>
+            {/* General error */}
+            {errors.general && (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-[13.5px] font-medium rounded-[10px] px-4 py-3 mb-5">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="shrink-0">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                {errors.general}
               </div>
             )}
 
-            {/* Confirm Password */}
-            <PasswordField
-              id="confirmPassword"
-              label="Confirm Password"
-              field="confirmPassword"
-              placeholder="Confirm your password"
-            />
-
-            {/* Password requirements */}
-            <div className="bg-gray-50 rounded-[10px] p-4 mb-5">
-              <p className="text-[#555] text-sm font-semibold mb-2">
-                Password must contain:
-              </p>
-              <ul className="list-none p-0 m-0">
-                {requirements.map(({ label, met }) => (
-                  <li
-                    key={label}
-                    className={`text-[13px] mb-1 pl-5 relative transition-colors duration-300 ${
-                      met ? "text-green-500" : "text-gray-400"
-                    }`}>
-                    <span className="absolute left-0">{met ? "✓" : "○"}</span>
-                    {label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Terms checkbox */}
-            <div className="mb-6">
-              <label className="flex items-start gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  name="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                  className="w-4.5 h-4.5 mt-0.5 cursor-pointer max-[480px]:mt-0.75"
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Row 1 */}
+              <div className="grid grid-cols-2 gap-x-4">
+                <FormField
+                  id="shopName"
+                  label="Shop Name"
+                  placeholder="Your shop name"
+                  formData={formData}
+                  errors={errors}
+                  focused={focused}
+                  setFocused={setFocused}
+                  handleChange={handleChange}
+                  showPassword={showPassword}
+                  togglePasswordVisibility={togglePasswordVisibility}
+                  isLoading={isLoading}
                 />
-                <span className="text-[#555] text-sm leading-relaxed">
-                  I agree to the{" "}
-                  <a
-                    href="/terms"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#667eea] no-underline font-medium transition-colors duration-300 hover:text-[#764ba2] hover:underline">
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    href="/privacy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#667eea] no-underline font-medium transition-colors duration-300 hover:text-[#764ba2] hover:underline">
-                    Privacy Policy
-                  </a>
-                </span>
-              </label>
-              {errors.agreeToTerms && (
-                <span className="block mt-1.5 text-red-500 text-[13px]">
-                  {errors.agreeToTerms}
-                </span>
-              )}
-            </div>
+                <FormField
+                  id="fullName"
+                  label="Full Name"
+                  placeholder="Your full name"
+                  formData={formData}
+                  errors={errors}
+                  focused={focused}
+                  setFocused={setFocused}
+                  handleChange={handleChange}
+                  showPassword={showPassword}
+                  togglePasswordVisibility={togglePasswordVisibility}
+                  isLoading={isLoading}
+                />
+              </div>
 
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3.5 bg-linear-to-br from-[#667eea] to-[#764ba2] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 hover:enabled:shadow-[0_5px_20px_rgba(102,126,234,0.4)]">
-              {isLoading ? (
-                <>
-                  <span className="w-5 h-5 border-[3px] border-white/30 rounded-full border-t-white animate-spin" />
-                  Creating Account...
-                </>
-              ) : (
-                "Create Account"
-              )}
-            </button>
-          </form>
+              {/* Row 2 */}
+              <div className="grid grid-cols-2 gap-x-4">
+                <FormField
+                  id="email"
+                  label="Email"
+                  type="email"
+                  placeholder="you@example.com"
+                  formData={formData}
+                  errors={errors}
+                  focused={focused}
+                  setFocused={setFocused}
+                  handleChange={handleChange}
+                  showPassword={showPassword}
+                  togglePasswordVisibility={togglePasswordVisibility}
+                  isLoading={isLoading}
+                />
+                <FormField
+                  id="phoneNumber"
+                  label="Phone Number"
+                  type="tel"
+                  placeholder="+855 12 345 678"
+                  formData={formData}
+                  errors={errors}
+                  focused={focused}
+                  setFocused={setFocused}
+                  handleChange={handleChange}
+                  showPassword={showPassword}
+                  togglePasswordVisibility={togglePasswordVisibility}
+                  isLoading={isLoading}
+                />
+              </div>
 
-          {/* Footer */}
-          <div className="text-center mt-6 pt-6 border-t border-gray-200">
-            <p className="text-[#666] text-sm">
-              Already have an account?{" "}
-              <a
-                href="/login"
-                className="text-[#667eea] no-underline font-semibold transition-colors duration-300 hover:text-[#764ba2] hover:underline">
-                Sign in
-              </a>
-            </p>
+              {/* Password */}
+              <FormField
+                id="password"
+                label="Password"
+                isPassword
+                passwordField="password"
+                placeholder="Create a strong password"
+                formData={formData}
+                errors={errors}
+                focused={focused}
+                setFocused={setFocused}
+                handleChange={handleChange}
+                showPassword={showPassword}
+                togglePasswordVisibility={togglePasswordVisibility}
+                isLoading={isLoading}
+              />
+
+              {/* Strength bar */}
+              {formData.password && (
+                <div className="-mt-2 mb-5">
+                  <div className="h-0.75 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${strength.width} ${strength.barColor}`}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex gap-3 flex-wrap">
+                      {requirements.map(({ label, met }) => (
+                        <span
+                          key={label}
+                          className={`flex items-center gap-1 text-[11px] transition-colors duration-200 ${met ? "text-green-600" : "text-slate-300"}`}>
+                          <svg
+                            width="9"
+                            height="9"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round">
+                            {met ? (
+                              <polyline points="20 6 9 17 4 12" />
+                            ) : (
+                              <circle cx="12" cy="12" r="9" />
+                            )}
+                          </svg>
+                          {label}
+                        </span>
+                      ))}
+                    </div>
+                    {strength.label && (
+                      <span
+                        className={`text-[11px] font-semibold ${strength.color}`}>
+                        {strength.label}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Confirm Password */}
+              <FormField
+                id="confirmPassword"
+                label="Confirm Password"
+                isPassword
+                passwordField="confirmPassword"
+                placeholder="Re-enter your password"
+                formData={formData}
+                errors={errors}
+                focused={focused}
+                setFocused={setFocused}
+                handleChange={handleChange}
+                showPassword={showPassword}
+                togglePasswordVisibility={togglePasswordVisibility}
+                isLoading={isLoading}
+              />
+
+              {/* Terms */}
+              <div className="mb-6">
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <div className="relative shrink-0 mt-0.5">
+                    <input
+                      type="checkbox"
+                      name="agreeToTerms"
+                      checked={formData.agreeToTerms}
+                      onChange={handleChange}
+                      disabled={isLoading}
+                      className="opacity-0 absolute w-4.5 h-4.5 cursor-pointer m-0"
+                    />
+                    <div
+                      className={[
+                        "w-4.5 h-4.5 rounded-[5px] border-[1.5px] flex items-center justify-center transition-all duration-150",
+                        errors.agreeToTerms
+                          ? "border-red-400"
+                          : formData.agreeToTerms
+                            ? "bg-slate-900 border-slate-900"
+                            : "bg-white border-slate-300",
+                      ].join(" ")}>
+                      {formData.agreeToTerms && (
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="white"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[13.5px] text-slate-500 leading-relaxed select-none">
+                    I agree to the{" "}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-900 font-semibold border-b border-slate-900 no-underline hover:text-slate-600 hover:border-slate-600 transition-colors">
+                      Terms of Service
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-900 font-semibold border-b border-slate-900 no-underline hover:text-slate-600 hover:border-slate-600 transition-colors">
+                      Privacy Policy
+                    </a>
+                  </span>
+                </label>
+                {errors.agreeToTerms && (
+                  <p className="mt-1.5 ml-7 text-xs text-red-500 font-medium">
+                    {errors.agreeToTerms}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3.75 bg-slate-900 hover:bg-slate-800 disabled:opacity-55 disabled:cursor-not-allowed text-white text-[15px] font-semibold rounded-[10px] flex items-center justify-center gap-2.5 transition-colors duration-200 tracking-tight">
+                {isLoading ? (
+                  <>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="spin">
+                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                    </svg>
+                    Creating account…
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </button>
+            </form>
           </div>
         </div>
       </div>

@@ -7,8 +7,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
 
 import java.util.*;
 import java.math.BigDecimal;
@@ -60,11 +62,21 @@ public class ProductService {
     // -----------------------------
     // GET PRODUCT BY ID
     // -----------------------------
-    public Map<String, Object> getProductById(UUID id) {
+    public Map<String, Object> getProductById(UUID id, Authentication authentication) {
+
+        UUID authUserId = UUID.fromString(authentication.getName());
+
+        Shop shop = shopRepository
+                .findByOwnerAuthId(authUserId)
+                .orElseThrow(() -> new RuntimeException("Shop not found"));
 
         Product product = productRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getShopId().equals(shop.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized");
+        }
 
         attachImageUrl(product);
 
@@ -347,7 +359,7 @@ public class ProductService {
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
             if (!product.getShopId().equals(shop.getId())) {
-                throw new RuntimeException("Unauthorized access");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized");
             }
 
             // -----------------------------
@@ -653,7 +665,7 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         if (!product.getShopId().equals(shop.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized");
         }
 
         // -----------------------------
