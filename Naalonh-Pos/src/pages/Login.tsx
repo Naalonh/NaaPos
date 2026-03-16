@@ -182,7 +182,7 @@ const Login = () => {
                 onChange={handleChange}
                 placeholder="Enter your email"
                 disabled={isLoading}
-                error={errors.email}
+                error={!!errors.email}
               />
               {errors.email && (
                 <span
@@ -204,7 +204,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  error={errors.password}
+                  error={!!errors.password}
                   disabled={isLoading}
                 />
                 <button

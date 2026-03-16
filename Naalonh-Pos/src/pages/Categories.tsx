@@ -9,7 +9,6 @@ import Process from "../components/Process";
 import Toast from "../components/Toast";
 import Warning from "../components/Warning";
 import SearchInput from "../components/SearchInput";
-import "../css/SearchDropdown.css";
 import highlightText from "../utils/highlightText";
 
 import {

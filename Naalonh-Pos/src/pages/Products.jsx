@@ -6,7 +6,6 @@ import Loader from "../components/Loaders";
 import Toast from "../components/Toast";
 import ProductModal from "../components/products/ProductModal";
 import SearchInput from "../components/SearchInput";
-// import "../css/Products.css";
 import Process from "../components/Process";
 import { API_BASE } from "../config";
 import { getToken } from "../utils/auth";

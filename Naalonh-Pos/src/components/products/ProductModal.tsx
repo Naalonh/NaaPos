@@ -3,6 +3,8 @@ import { OptionGroup, ProductForm } from "../../types/product";
 import CropModal from "../CropModal";
 import OptionModal from "./OptionModal";
 import { BiSolidImage, BiPlus, BiTrash, BiEditAlt } from "react-icons/bi";
+import Switch from "../common/Switch";
+import Input from "../ui/Input";
 
 type SelectedImage = {
   preview: string;
@@ -203,15 +205,14 @@ const ProductModal: React.FC<ProductModalProps> = ({
               <label className="text-sm font-semibold text-slate-600">
                 Product Name
               </label>
-              <input
+              <Input
                 type="text"
                 required
                 value={formData.name}
+                placeholder="e.g. Grilled Salmon"
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="e.g. Grilled Salmon"
-                className="p-2.75 border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
               />
             </div>
 
@@ -286,8 +287,9 @@ group-hover:translate-y-0 z-100">
                 <label className="text-sm font-semibold text-slate-600">
                   Price {formData.currency === "USD" ? "($)" : "(៛)"}
                 </label>
-                <input
+                <Input
                   type="number"
+                  placeholder="Enter your price"
                   step="0.01"
                   required
                   value={formData.price ?? ""}
@@ -298,7 +300,6 @@ group-hover:translate-y-0 z-100">
                         e.target.value === "" ? "" : parseFloat(e.target.value),
                     })
                   }
-                  className="p-2.75 border border-slate-200 rounded-md font-inter transition-all focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
                 />
               </div>
             </div>
@@ -317,56 +318,22 @@ group-hover:translate-y-0 z-100">
               />
             </div>
 
-            <div className="mb-5 flex flex-col gap-2">
-              <label className="text-sm font-semibold text-slate-600">
-                Status
-              </label>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-700">Status</span>
 
-              <div className="w-full">
-                <div className="flex relative items-center w-full bg-white shadow-[0_0_1px_rgba(24,94,224,0.15),0_6px_12px_rgba(24,94,224,0.15)] p-1 rounded-xl">
-                  <input
-                    type="radio"
-                    id="status-active"
-                    name="status"
-                    checked={formData.status === "active"}
-                    onChange={() =>
-                      setFormData({ ...formData, status: "active" })
-                    }
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="status-active"
-                    className="flex-1 flex items-center justify-center text-center h-9 leading-11.5 text-sm text-slate-700 font-bold rounded-[10px] cursor-pointer transition-colors relative z-2 peer-checked:text-blue-600">
-                    Active
-                  </label>
-
-                  <input
-                    type="radio"
-                    id="status-disabled"
-                    name="status"
-                    checked={formData.status === "disabled"}
-                    onChange={() =>
-                      setFormData({ ...formData, status: "disabled" })
-                    }
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="status-disabled"
-                    className="flex-1 flex items-center justify-center text-center h-9 leading-11.5 text-sm text-slate-700 font-bold rounded-[10px] cursor-pointer transition-colors relative z-2 peer-checked:text-blue-600">
-                    Disabled
-                  </label>
-
-                  <span
-                    className={`absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-blue-50 rounded-[10px] transition-transform duration-250 z-1 ${
-                      formData.status === "disabled"
-                        ? "translate-x-full"
-                        : "translate-x-0"
-                    }`}
-                  />
-                </div>
-              </div>
+              <Switch
+                checked={formData.status === "active"}
+                onChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    status: checked ? "active" : "disabled",
+                  }))
+                }
+                labelOn="Active"
+                labelOff="Disabled"
+              />
             </div>
-
+            <hr className="my-4 border-gray-200" />
             <div className="mb-5 flex flex-col gap-2">
               <div className="flex justify-between items-center mb-2">
                 <label className="text-sm font-semibold text-slate-600 m-0">
